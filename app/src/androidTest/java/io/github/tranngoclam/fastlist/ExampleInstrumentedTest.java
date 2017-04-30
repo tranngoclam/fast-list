@@ -1,4 +1,4 @@
-package io.github.lamtran.fastlist;
+package io.github.tranngoclam.fastlist;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
