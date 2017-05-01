@@ -1,11 +1,10 @@
 package io.github.tranngoclam.fastlist.ui;
 
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import io.github.tranngoclam.fastlist.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BaseActivity {
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {

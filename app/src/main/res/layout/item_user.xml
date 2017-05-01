@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:background="?attr/selectableItemBackground"
+  style="@style/MdListItem.TwoLine.AvatarWithText">
 
-  <TextView
-    android:id="@+id/id"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+  <LinearLayout style="@style/Base.MdListItem.Wrapper">
 
-  <TextView
-    android:id="@+id/name"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content" />
+    <TextView
+      android:id="@+id/name"
+      tools:text="Two Line - Avatar With Text"
+      style="@style/Base.MdListItem.Title.Left" />
 
-  <ImageView
+    <TextView
+      android:id="@+id/desc"
+      tools:text="Subtitle"
+      style="@style/Base.MdListItem.Subtitle.Left" />
+  </LinearLayout>
+
+  <com.facebook.drawee.view.SimpleDraweeView
     android:id="@+id/avatar"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content" />
-</LinearLayout>
+    style="@style/Base.MdListItem.Avatar" />
+</RelativeLayout>

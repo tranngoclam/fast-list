@@ -1,7 +1,9 @@
-package io.github.tranngoclam.fastlist.ui;
+package io.github.tranngoclam.fastlist.ui.adapter;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
+
+import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 
 /**
  * Created by lam on 4/30/17.

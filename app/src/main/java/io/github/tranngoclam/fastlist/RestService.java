@@ -1,7 +1,9 @@
 package io.github.tranngoclam.fastlist;
 
-import io.github.tranngoclam.fastlist.model.Response;
-import io.reactivex.Observable;
+import java.util.List;
+
+import io.github.tranngoclam.fastlist.model.User;
+import io.reactivex.Single;
 import retrofit2.http.GET;
 import retrofit2.http.Query;
 
@@ -11,11 +13,6 @@ import retrofit2.http.Query;
 
 public interface RestService {
 
-  @GET("/")
-  Observable<Response> getUsers(
-      @Query("nat") String nationality,
-      @Query("seed") String seed,
-      @Query("results") int amount,
-      @Query("gender") String gender
-  );
+  @GET("/?ext")
+  Single<List<User>> getUsers(@Query("amount") int amount);
 }

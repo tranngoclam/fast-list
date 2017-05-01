@@ -6,35 +6,43 @@ package io.github.tranngoclam.fastlist.model;
 
 public class User {
 
-  private String cell;
+  private int age;
 
-  private String dob;
+  private Birthday birthday;
+
+  private CreditCard credit_card;
 
   private String email;
 
   private String gender;
 
-  private Id id;
-
-  private Location location;
-
-  private Name name;
-
-  private String nat;
+  private String name;
 
   private String password;
 
   private String phone;
 
-  private Picture picture;
+  private String photo;
 
-  private String registered;
+  private String region;
+
+  private String surname;
+
+  private String title;
+
+  public String getAvatar() {
+    return photo;
+  }
+
+  public String getDesc() {
+    return gender + ", " + age + ", " + phone;
+  }
 
   public String getId() {
-    return id.value;
+    return password;
   }
 
   public String getName() {
-    return name.first + " " + name.last;
+    return title + ". " + name + " " + surname;
   }
 }

@@ -1,4 +1,4 @@
-package io.github.tranngoclam.fastlist.ui;
+package io.github.tranngoclam.fastlist.ui.adapter;
 
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import io.github.tranngoclam.fastlist.model.User;
+import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 
 /**
  * Created by lam on 4/30/17.
@@ -35,7 +36,7 @@ public class DiffUtilRecyclerViewAdapter extends RecyclerView.Adapter<UserViewHo
 
   @Override
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return UserViewHolder.create(parent, viewType);
+    return UserViewHolder.create(parent);
   }
 
   public void set(List<User> newUsers) {

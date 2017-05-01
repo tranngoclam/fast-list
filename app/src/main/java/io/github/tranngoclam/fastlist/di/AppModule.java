@@ -8,6 +8,8 @@ import io.github.tranngoclam.fastlist.App;
 import io.github.tranngoclam.fastlist.RestService;
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by lam on 4/30/17.
@@ -32,7 +34,9 @@ public class AppModule {
   @Provides
   RestService provideRestService() {
     Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl("http://api.randomuser.me")
+        .baseUrl("https://uinames.com/api")
+        .addConverterFactory(GsonConverterFactory.create())
+        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build();
     return retrofit.create(RestService.class);
   }

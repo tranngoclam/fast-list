@@ -1,11 +1,13 @@
-package io.github.tranngoclam.fastlist.ui;
+package io.github.tranngoclam.fastlist.ui.adapter;
 
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.util.SortedListAdapterCallback;
+import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import io.github.tranngoclam.fastlist.model.User;
+import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 
 /**
  * Created by lam on 4/30/17.
@@ -19,12 +21,12 @@ public class SortedListRecyclerViewAdapter extends RecyclerView.Adapter<UserView
     mUsers = new SortedList<>(User.class, new SortedListAdapterCallback<User>(this) {
       @Override
       public boolean areContentsTheSame(User oldItem, User newItem) {
-        return false;
+        return TextUtils.equals(oldItem.getName(), newItem.getName());
       }
 
       @Override
       public boolean areItemsTheSame(User item1, User item2) {
-        return false;
+        return TextUtils.equals(item1.getId(), item2.getId());
       }
 
       @Override
@@ -46,6 +48,6 @@ public class SortedListRecyclerViewAdapter extends RecyclerView.Adapter<UserView
 
   @Override
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return UserViewHolder.create(parent, viewType);
+    return UserViewHolder.create(parent);
   }
 }
