@@ -1,6 +1,7 @@
 package io.github.tranngoclam.fastlist.di;
 
 import dagger.Component;
+import io.github.tranngoclam.fastlist.App;
 import io.github.tranngoclam.fastlist.ui.ListActivity;
 
 /**
@@ -10,4 +11,6 @@ import io.github.tranngoclam.fastlist.ui.ListActivity;
 public interface AppComponent {
 
   void inject(ListActivity listActivity);
+
+  void inject(App app);
 }

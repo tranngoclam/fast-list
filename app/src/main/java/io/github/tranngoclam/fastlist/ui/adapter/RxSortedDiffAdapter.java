@@ -9,7 +9,7 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class ReactiveRecyclerViewAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class RxSortedDiffAdapter extends RecyclerView.Adapter<UserViewHolder> {
 
   @Override
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

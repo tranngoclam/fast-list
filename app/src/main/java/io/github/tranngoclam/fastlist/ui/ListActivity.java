@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
-import io.github.tranngoclam.fastlist.ui.adapter.RegularRecyclerViewAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
 import timber.log.Timber;
 
 public class ListActivity extends BaseActivity {
@@ -87,7 +87,7 @@ public class ListActivity extends BaseActivity {
   }
 
   private void onModeRegular(List<User> users) {
-    RegularRecyclerViewAdapter adapter = new RegularRecyclerViewAdapter();
+    RegularAdapter adapter = new RegularAdapter();
     mRecyclerView.setAdapter(adapter);
     adapter.set(users);
   }

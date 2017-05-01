@@ -16,11 +16,11 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class DiffUtilRecyclerViewAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> {
 
   private final List<User> mUsers;
 
-  public DiffUtilRecyclerViewAdapter() {
+  public DiffUtilAdapter() {
     this.mUsers = new ArrayList<>();
   }
 

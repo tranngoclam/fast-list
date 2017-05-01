@@ -1,10 +1,23 @@
 package io.github.tranngoclam.fastlist.model;
 
+import android.support.annotation.NonNull;
+import android.text.TextUtils;
+
 /**
  * Created by lam on 4/16/17.
  */
 
-public class User {
+public class User implements Comparable<User> {
+
+  public static boolean areContentsTheSame(User oldUser, User newUser) {
+    return oldUser.age == newUser.age && TextUtils.equals(oldUser.gender, newUser.gender) && TextUtils.equals(oldUser.name, newUser.name);
+  }
+
+  public static boolean areItemsTheSame(User user1, User user2) {
+    return TextUtils.equals(user1.getId(), user2.getId());
+  }
+
+  public String name;
 
   private int age;
 
@@ -15,8 +28,6 @@ public class User {
   private String email;
 
   private String gender;
-
-  private String name;
 
   private String password;
 
@@ -29,6 +40,11 @@ public class User {
   private String surname;
 
   private String title;
+
+  @Override
+  public int compareTo(@NonNull User user) {
+    return getName().compareTo(user.getName());
+  }
 
   public String getAvatar() {
     return photo;
