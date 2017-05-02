@@ -3,8 +3,10 @@ package io.github.tranngoclam.fastlist.ui;
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 
+import butterknife.ButterKnife;
 import io.github.tranngoclam.fastlist.App;
 import io.github.tranngoclam.fastlist.di.AppComponent;
 import me.henrytao.mdcore.core.MdCore;
@@ -15,10 +17,15 @@ import me.henrytao.mdcore.core.MdCore;
 
 public abstract class BaseActivity extends RxAppCompatActivity {
 
+  protected abstract int getLayoutRes();
+
+  @CallSuper
   @Override
   protected void onCreate(@Nullable Bundle savedInstanceState) {
     MdCore.init(this);
     super.onCreate(savedInstanceState);
+    setContentView(getLayoutRes());
+    ButterKnife.bind(this);
   }
 
   public AppComponent getAppComponent() {

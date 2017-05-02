@@ -9,23 +9,23 @@
     android:id="@+id/regular"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Regular RecyclerView" />
+    android:text="Regular" />
 
   <Button
     android:id="@+id/diff_util"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="DiffUtil RecyclerView" />
+    android:text="DiffUtil" />
 
   <Button
     android:id="@+id/sorted_list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="SortedList RecyclerView" />
+    android:text="SortedList" />
 
   <Button
     android:id="@+id/reactive"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:text="Reactive RecyclerView" />
+    android:text="SortedDiff" />
 </LinearLayout>

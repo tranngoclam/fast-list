@@ -15,8 +15,15 @@ import javax.inject.Inject;
 import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
+import io.github.tranngoclam.fastlist.ui.adapter.BehavioralAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.DiffUtilAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
-import timber.log.Timber;
+import io.github.tranngoclam.fastlist.ui.adapter.RxAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.RxSortedDiffAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.SortedDiffAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.SortedListAdapter;
+import io.github.tranngoclam.fastlist.util.Transformer;
+import me.henrytao.mdcore.utils.Ln;
 
 public class ListActivity extends BaseActivity {
 
@@ -40,7 +47,21 @@ public class ListActivity extends BaseActivity {
 
   @Inject RestService mRestService;
 
+  private BehavioralAdapter<User> mBehavioralAdapter;
+
+  private DiffUtilAdapter mDiffUtilAdapter;
+
   private RecyclerView mRecyclerView;
+
+  private RegularAdapter mRegularAdapter;
+
+  private RxAdapter mRxAdapter;
+
+  private RxSortedDiffAdapter mRxSortedDiffAdapter;
+
+  private SortedDiffAdapter mSortedDiffAdapter;
+
+  private SortedListAdapter mSortedListAdapter;
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,15 +72,32 @@ public class ListActivity extends BaseActivity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.action_add_single:
+        mRestService.getUsers(1)
+            .filter(users -> users != null && !users.isEmpty())
+            .map(users -> users.get(0))
+            .compose(Transformer.applyIoMaybeTransformer())
+            .compose(bindToLifecycle())
+            .subscribe(user -> {
+              int index = (int) (Math.random() * mBehavioralAdapter.getItemCount());
+              mBehavioralAdapter.add(index, user);
+            }, throwable -> {
+              Ln.w(throwable);
+            });
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }
   }
 
   @Override
+  protected int getLayoutRes() {
+    return R.layout.activity_list;
+  }
+
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.activity_list);
 
     getAppComponent().inject(this);
 
@@ -70,6 +108,7 @@ public class ListActivity extends BaseActivity {
     mRecyclerView.setHasFixedSize(true);
 
     mRestService.getUsers(DEFAULT_AMOUNT)
+        .compose(Transformer.applyIoSingleTransformer())
         .compose(bindToLifecycle())
         .subscribe(users -> {
           switch (mode) {
@@ -82,13 +121,13 @@ public class ListActivity extends BaseActivity {
               break;
           }
         }, throwable -> {
-          Timber.w(throwable);
+          Ln.w(throwable);
         });
   }
 
   private void onModeRegular(List<User> users) {
-    RegularAdapter adapter = new RegularAdapter();
-    mRecyclerView.setAdapter(adapter);
-    adapter.set(users);
+    mBehavioralAdapter = new RegularAdapter();
+    mRecyclerView.setAdapter(mRegularAdapter);
+    mRegularAdapter.set(users);
   }
 }

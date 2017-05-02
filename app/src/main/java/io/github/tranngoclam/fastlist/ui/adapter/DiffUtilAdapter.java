@@ -16,12 +16,32 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> implements BehavioralAdapter<User> {
 
   private final List<User> mUsers;
 
   public DiffUtilAdapter() {
     this.mUsers = new ArrayList<>();
+  }
+
+  @Override
+  public void add(User data) {
+
+  }
+
+  @Override
+  public void add(List<User> data) {
+
+  }
+
+  @Override
+  public void add(int index, User data) {
+
+  }
+
+  @Override
+  public void clear() {
+
   }
 
   @Override
@@ -37,6 +57,21 @@ public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> {
   @Override
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     return UserViewHolder.create(parent);
+  }
+
+  @Override
+  public void remove(User data) {
+
+  }
+
+  @Override
+  public void remove(int index) {
+
+  }
+
+  @Override
+  public void set(int index, User data) {
+
   }
 
   public void set(List<User> newUsers) {

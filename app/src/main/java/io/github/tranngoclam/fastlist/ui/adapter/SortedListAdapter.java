@@ -3,10 +3,9 @@ package io.github.tranngoclam.fastlist.ui.adapter;
 import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.util.SortedListAdapterCallback;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
-import java.util.Collection;
+import java.util.List;
 
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
@@ -15,7 +14,7 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> {
+public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> implements BehavioralAdapter<User> {
 
   private final SortedList<User> mUsers;
 
@@ -23,19 +22,38 @@ public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> {
     mUsers = new SortedList<>(User.class, new SortedListAdapterCallback<User>(this) {
       @Override
       public boolean areContentsTheSame(User oldItem, User newItem) {
-        return TextUtils.equals(oldItem.getName(), newItem.getName());
+        return User.areContentsTheSame(oldItem, newItem);
       }
 
       @Override
       public boolean areItemsTheSame(User item1, User item2) {
-        return TextUtils.equals(item1.getId(), item2.getId());
+        return User.areItemsTheSame(item1, item2);
       }
 
       @Override
       public int compare(User o1, User o2) {
-        return o1.getName().compareTo(o2.getName());
+        return User.compare(o1, o2);
       }
     });
+  }
+
+  @Override
+  public void add(User data) {
+    mUsers.add(data);
+  }
+
+  @Override
+  public void add(List<User> data) {
+    mUsers.addAll(data);
+  }
+
+  @Override
+  public void add(int index, User data) {
+  }
+
+  @Override
+  public void clear() {
+    mUsers.clear();
   }
 
   @Override
@@ -53,23 +71,24 @@ public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> {
     return UserViewHolder.create(parent);
   }
 
-  public void add(User user) {
-    mUsers.add(user);
+  @Override
+  public void remove(User data) {
+    mUsers.remove(data);
   }
 
-  public void addAll(User... users) {
-    mUsers.addAll();
+  @Override
+  public void remove(int index) {
+    mUsers.removeItemAt(index);
   }
 
-  public void addAll(Collection<User> users) {
-    mUsers.addAll(users);
+  @Override
+  public void set(int index, User data) {
+    mUsers.updateItemAt(index, data);
   }
 
-  public boolean remove(User user) {
-    return mUsers.remove(user);
-  }
-
-  public void updateItemAt(int index, User user) {
-    mUsers.updateItemAt(index, user);
+  @Override
+  public void set(List<User> data) {
+    mUsers.clear();
+    mUsers.addAll(data);
   }
 }

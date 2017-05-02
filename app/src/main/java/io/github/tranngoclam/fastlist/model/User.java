@@ -17,6 +17,10 @@ public class User implements Comparable<User> {
     return TextUtils.equals(user1.getId(), user2.getId());
   }
 
+  public static int compare(User user1, User user2) {
+    return user1.getName().compareTo(user2.getName());
+  }
+
   public String name;
 
   private int age;

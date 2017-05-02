@@ -22,9 +22,9 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
     return new UserViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false));
   }
 
-  SimpleDraweeView avatar;
+  private SimpleDraweeView avatar;
 
-  TextView name, desc;
+  private TextView name, desc;
 
   private UserViewHolder(View itemView) {
     super(itemView);

@@ -1,7 +1,5 @@
 package io.github.tranngoclam.fastlist;
 
-import android.support.v7.util.SortedList;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -20,26 +18,42 @@ public class RxSortedList<T> {
 
   private static Executor sExecutor = Executors.newSingleThreadExecutor();
 
-  private SortedList<T> mSortedList;
+  private SnappySortedList<T> mData;
 
   public Observable<Integer> add(T item) {
-    return Observable.fromCallable(() -> mSortedList.add(item))
+    return Observable.fromCallable(() -> mData.add(item))
         .compose(onBackground());
   }
 
   public Completable addCompletable(T item) {
-    return Completable.fromAction(() -> mSortedList.add(item));
+    return Completable.fromAction(() -> mData.add(item));
   }
 
   public Single<Integer> addSingle(T item) {
-    return Single.fromCallable(() -> mSortedList.add(item));
+    return Single.fromCallable(() -> mData.add(item));
+  }
+
+  public T get(int position) {
+    return mData.get(position);
+  }
+
+  public Observable<Boolean> remove(T item) {
+    return Observable.fromCallable(() -> mData.remove(item))
+        .compose(onBackground());
   }
 
   public int size() {
-    return mSortedList.size();
+    return mData.size();
   }
 
-  private <T> ObservableTransformer<T, T> onBackground() {
+  public Observable<Void> updateItemAt(int index, T item) {
+    return Observable.<Void>fromCallable(() -> {
+      mData.updateItemAt(index, item);
+      return null;
+    }).compose(onBackground());
+  }
+
+  private <T1> ObservableTransformer<T1, T1> onBackground() {
     return observable -> observable
         .subscribeOn(Schedulers.from(sExecutor))
         .observeOn(AndroidSchedulers.mainThread());

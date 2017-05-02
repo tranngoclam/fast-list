@@ -3,6 +3,8 @@ package io.github.tranngoclam.fastlist.ui.adapter;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
+import io.github.tranngoclam.fastlist.RxSortedList;
+import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 
 /**
@@ -11,18 +13,24 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 
 public class RxSortedDiffAdapter extends RecyclerView.Adapter<UserViewHolder> {
 
-  @Override
-  public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return null;
-  }
+  private final RxSortedList<User> mUsers;
 
-  @Override
-  public void onBindViewHolder(UserViewHolder holder, int position) {
-
+  public RxSortedDiffAdapter() {
+    mUsers = new RxSortedList<>();
   }
 
   @Override
   public int getItemCount() {
-    return 0;
+    return mUsers.size();
+  }
+
+  @Override
+  public void onBindViewHolder(UserViewHolder holder, int position) {
+    holder.bind(mUsers.get(position));
+  }
+
+  @Override
+  public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    return UserViewHolder.create(parent);
   }
 }
