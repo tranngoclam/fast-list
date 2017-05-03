@@ -18,6 +18,8 @@ public abstract class BehavioralAdapter<T, VH extends RecyclerView.ViewHolder> e
 
   public abstract void clear();
 
+  public abstract T get(int index);
+
   public abstract void remove(int index);
 
   public abstract void remove(T data);

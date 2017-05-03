@@ -9,8 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
 import javax.inject.Inject;
 
 import io.github.tranngoclam.fastlist.R;
@@ -19,6 +17,7 @@ import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.adapter.BehavioralAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RxSortedDiffAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.SortedListAdapter;
 import io.github.tranngoclam.fastlist.util.Transformer;
 import io.github.tranngoclam.fastlist.util.Utils;
 import timber.log.Timber;
@@ -35,7 +34,9 @@ public class ListActivity extends BaseActivity {
 
   public static final int MODE_SORTED_LIST = 1;
 
-  static final int DEFAULT_AMOUNT = 5;
+  static final int DEFAULT_AMOUNT = 500;
+
+  static final String DEFAULT_REGION = "United States";
 
   static final String EXTRA_MODE = "extra_mode";
 
@@ -46,6 +47,8 @@ public class ListActivity extends BaseActivity {
   }
 
   @Inject RestService mRestService;
+
+  private RecyclerView.AdapterDataObserver mAdapterDataObserver;
 
   private BehavioralAdapter<User, UserViewHolder> mBehavioralAdapter;
 
@@ -65,18 +68,24 @@ public class ListActivity extends BaseActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_add_single:
-        mRestService.getUser()
+        mRestService.getUser(DEFAULT_REGION)
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
             .subscribe(user -> {
-              int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
-              mBehavioralAdapter.add(index, user);
+              if (mBehavioralAdapter != null) {
+                if (mBehavioralAdapter instanceof SortedListAdapter) {
+                  mBehavioralAdapter.add(user);
+                } else {
+                  int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
+                  mBehavioralAdapter.add(index, user);
+                }
+              }
             }, throwable -> {
               Timber.w(throwable);
             });
         return true;
       case R.id.action_add_multi:
-        mRestService.getUsers(DEFAULT_AMOUNT)
+        mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
             .subscribe(users -> {
@@ -85,10 +94,25 @@ public class ListActivity extends BaseActivity {
               Timber.w(throwable);
             });
         return true;
-      case R.id.action_remove_one_item:
-        int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
-        mBehavioralAdapter.remove(index);
+      case R.id.action_update_single:
+        User user = mBehavioralAdapter.get(1);
+        user.switchGender();
+        if (mBehavioralAdapter != null) {
+          mBehavioralAdapter.set(1, user);
+        }
         return true;
+      case R.id.action_update_multi:
+        return true;
+      case R.id.action_remove_one_item:
+        if (mBehavioralAdapter != null) {
+          int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
+          mBehavioralAdapter.remove(index);
+        }
+        return true;
+      case R.id.action_clear:
+        if (mBehavioralAdapter != null) {
+          mBehavioralAdapter.clear();
+        }
       default:
         return super.onOptionsItemSelected(item);
     }
@@ -114,13 +138,19 @@ public class ListActivity extends BaseActivity {
     mRecyclerView = (RecyclerView) findViewById(R.id.list);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     mRecyclerView.setHasFixedSize(true);
+
+    mAdapterDataObserver = new RecyclerViewAdapterDataObserver();
+
     switch (mode) {
       case MODE_REGULAR:
         mBehavioralAdapter = new RegularAdapter();
-        mBehavioralAdapter.registerAdapterDataObserver(new RecyclerViewAdapterDataObserver());
+        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_SORTED_LIST:
+        mBehavioralAdapter = new SortedListAdapter();
+        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_DIFF_UTIL:
         break;
@@ -128,15 +158,16 @@ public class ListActivity extends BaseActivity {
         break;
     }
 
-    mRestService.getUsers(DEFAULT_AMOUNT)
+    mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
         .compose(Transformer.applyIoSingleTransformer())
         .compose(bindToLifecycle())
         .subscribe(users -> {
           switch (mode) {
             case MODE_REGULAR:
-              onModeRegular(users);
-              break;
             case MODE_SORTED_LIST:
+              if (mBehavioralAdapter != null) {
+                mBehavioralAdapter.set(users);
+              }
               break;
             case MODE_DIFF_UTIL:
               break;
@@ -148,8 +179,13 @@ public class ListActivity extends BaseActivity {
         });
   }
 
-  private void onModeRegular(List<User> users) {
-    mBehavioralAdapter.set(users);
+  @Override
+  protected void onDestroy() {
+    RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+    if (adapter != null) {
+      adapter.unregisterAdapterDataObserver(mAdapterDataObserver);
+    }
+    super.onDestroy();
   }
 
   private static class RecyclerViewAdapterDataObserver extends RecyclerView.AdapterDataObserver {
@@ -157,37 +193,38 @@ public class ListActivity extends BaseActivity {
     @Override
     public void onChanged() {
       super.onChanged();
-      Timber.d("onChanged");
+      Timber.d("AdapterDataObserver | onChanged");
     }
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
       super.onItemRangeChanged(positionStart, itemCount, payload);
-      Timber.d("onItemRangeChangedWithPayload | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("AdapterDataObserver | onItemRangeChangedWithPayload | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
       super.onItemRangeChanged(positionStart, itemCount);
-      Timber.d("onItemRangeChanged | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("AdapterDataObserver | onItemRangeChanged | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeInserted(int positionStart, int itemCount) {
       super.onItemRangeInserted(positionStart, itemCount);
-      Timber.d("onItemRangeInserted | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("AdapterDataObserver | onItemRangeInserted | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
       super.onItemRangeMoved(fromPosition, toPosition, itemCount);
-      Timber.d("onItemRangeMoved | fromPosition: %d, toPosition: %d, itemCount: %d", fromPosition, toPosition, itemCount);
+      Timber.d("AdapterDataObserver | onItemRangeMoved | fromPosition: %d, toPosition: %d, itemCount: %d", fromPosition, toPosition,
+          itemCount);
     }
 
     @Override
     public void onItemRangeRemoved(int positionStart, int itemCount) {
       super.onItemRangeRemoved(positionStart, itemCount);
-      Timber.d("onItemRangeRemoved | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("AdapterDataObserver | onItemRangeRemoved | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
   }
 }

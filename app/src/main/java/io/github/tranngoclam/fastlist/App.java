@@ -8,6 +8,7 @@ import android.app.Application;
 
 import javax.inject.Inject;
 
+import io.github.tranngoclam.ThreadAwareDebugTree;
 import io.github.tranngoclam.fastlist.di.AppComponent;
 import io.github.tranngoclam.fastlist.di.AppModule;
 import io.github.tranngoclam.fastlist.di.DaggerAppComponent;
@@ -34,7 +35,6 @@ public class App extends Application {
           .appModule(new AppModule(this))
           .build();
     }
-
     getAppComponent().inject(this);
 
     // fresco
@@ -45,7 +45,7 @@ public class App extends Application {
 
     // logging
     if (BuildConfig.DEBUG) {
-      Timber.plant(new Timber.DebugTree());
+      Timber.plant(new ThreadAwareDebugTree());
     }
   }
 

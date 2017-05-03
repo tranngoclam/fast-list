@@ -39,7 +39,15 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   @Override
   public void clear() {
+    mUsers.clear();
+  }
 
+  @Override
+  public User get(int index) {
+    if (index >= 0 && index < getItemCount()) {
+      return mUsers.get(index);
+    }
+    return null;
   }
 
   @Override

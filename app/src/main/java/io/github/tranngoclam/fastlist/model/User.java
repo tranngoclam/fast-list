@@ -68,4 +68,12 @@ public class User implements Comparable<User> {
   public String getName() {
     return name + " " + surname;
   }
+
+  public void switchGender() {
+    if (gender.equals("male")) {
+      gender = "female";
+    } else {
+      gender = "male";
+    }
+  }
 }
