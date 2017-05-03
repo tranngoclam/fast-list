@@ -1,6 +1,5 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -13,7 +12,7 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class RegularAdapter extends RecyclerView.Adapter<UserViewHolder> implements BehavioralAdapter<User> {
+public class RegularAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   private final List<User> mUsers;
 
@@ -28,7 +27,9 @@ public class RegularAdapter extends RecyclerView.Adapter<UserViewHolder> impleme
 
   @Override
   public void add(List<User> data) {
-
+    int positionStart = getItemCount();
+    mUsers.addAll(data);
+    notifyItemRangeInserted(positionStart, data.size());
   }
 
   @Override

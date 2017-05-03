@@ -4,6 +4,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import io.reactivex.Completable;
+import io.reactivex.CompletableTransformer;
 import io.reactivex.Observable;
 import io.reactivex.ObservableTransformer;
 import io.reactivex.Single;
@@ -42,6 +43,11 @@ public class RxSortedList<T> {
         .compose(onBackground());
   }
 
+  public Completable removeItemAt(int index) {
+    return Completable.fromAction(() -> mData.removeItemAt(index))
+        .compose(onCompletableTransformer());
+  }
+
   public int size() {
     return mData.size();
   }
@@ -55,6 +61,12 @@ public class RxSortedList<T> {
 
   private <T1> ObservableTransformer<T1, T1> onBackground() {
     return observable -> observable
+        .subscribeOn(Schedulers.from(sExecutor))
+        .observeOn(AndroidSchedulers.mainThread());
+  }
+
+  private CompletableTransformer onCompletableTransformer() {
+    return completable -> completable
         .subscribeOn(Schedulers.from(sExecutor))
         .observeOn(AndroidSchedulers.mainThread());
   }

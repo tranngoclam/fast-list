@@ -1,26 +1,28 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
+import android.support.v7.widget.RecyclerView;
+
 import java.util.List;
 
 /**
  * Created by lam on 5/2/17.
  */
 
-public interface BehavioralAdapter<T> {
+public abstract class BehavioralAdapter<T, VH extends RecyclerView.ViewHolder> extends RecyclerView.Adapter<VH> {
 
-  void add(T data);
+  public abstract void add(T data);
 
-  void add(List<T> data);
+  public abstract void add(List<T> data);
 
-  void add(int index, T data);
+  public abstract void add(int index, T data);
 
-  void clear();
+  public abstract void clear();
 
-  void remove(T data);
+  public abstract void remove(int index);
 
-  void remove(int index);
+  public abstract void remove(T data);
 
-  void set(int index, T data);
+  public abstract void set(List<T> data);
 
-  void set(List<T> data);
+  public abstract void set(int index, T data);
 }

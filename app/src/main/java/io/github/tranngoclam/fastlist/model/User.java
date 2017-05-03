@@ -18,7 +18,10 @@ public class User implements Comparable<User> {
   }
 
   public static int compare(User user1, User user2) {
-    return user1.getName().compareTo(user2.getName());
+    int nameCompare = user1.getName().compareToIgnoreCase(user2.getName());
+    int ageCompare = user1.age - user2.age;
+    int genderCompare = user1.gender.compareToIgnoreCase(user2.gender);
+    return nameCompare != 0 ? nameCompare : ageCompare != 0 ? ageCompare : genderCompare;
   }
 
   public String name;
@@ -47,7 +50,7 @@ public class User implements Comparable<User> {
 
   @Override
   public int compareTo(@NonNull User user) {
-    return getName().compareTo(user.getName());
+    return User.compare(this, user);
   }
 
   public String getAvatar() {
@@ -63,6 +66,6 @@ public class User implements Comparable<User> {
   }
 
   public String getName() {
-    return title + ". " + name + " " + surname;
+    return name + " " + surname;
   }
 }

@@ -3,29 +3,29 @@ package io.github.tranngoclam.fastlist;
 import android.support.v4.util.Pair;
 import android.support.v7.util.DiffUtil;
 
-class SnappyDiffCallback<D> extends DiffUtil.Callback {
+public class SnappyDiffCallback<D> extends DiffUtil.Callback {
+
+  static <D> Pair<DiffUtil.DiffResult, D[]> calculate(RxSortedListCallback<D> callback, D[] oldData, D[] newData,
+      int oldDataLength, int newDataLength) {
+    return Pair.create(DiffUtil.calculateDiff(new SnappyDiffCallback<>(callback, oldData, newData, oldDataLength, newDataLength)), newData);
+  }
 
   private final RxSortedListCallback<D> mCallback;
 
   private final D[] mNewData;
 
+  private final int mNewDataLength;
+
   private final D[] mOldData;
 
   private final int mOldDataLength;
 
-  private final int mNewDataLength;
-
-  SnappyDiffCallback(RxSortedListCallback<D> callback, D[] oldData, D[] newData, int oldDataLength, int newDataLength) {
+  private SnappyDiffCallback(RxSortedListCallback<D> callback, D[] oldData, D[] newData, int oldDataLength, int newDataLength) {
     mOldData = oldData;
     mNewData = newData;
     mCallback = callback;
     mOldDataLength = oldDataLength;
     mNewDataLength = newDataLength;
-  }
-
-  static <D> Pair<DiffUtil.DiffResult, D[]> calculate(RxSortedListCallback<D> callback, D[] oldData, D[] newData,
-      int oldDataLength, int newDataLength) {
-    return Pair.create(DiffUtil.calculateDiff(new SnappyDiffCallback<>(callback, oldData, newData, oldDataLength, newDataLength)), newData);
   }
 
   @Override

@@ -16,12 +16,8 @@ import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.adapter.BehavioralAdapter;
-import io.github.tranngoclam.fastlist.ui.adapter.DiffUtilAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
-import io.github.tranngoclam.fastlist.ui.adapter.RxAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RxSortedDiffAdapter;
-import io.github.tranngoclam.fastlist.ui.adapter.SortedDiffAdapter;
-import io.github.tranngoclam.fastlist.ui.adapter.SortedListAdapter;
 import io.github.tranngoclam.fastlist.util.Transformer;
 import me.henrytao.mdcore.utils.Ln;
 
@@ -33,9 +29,11 @@ public class ListActivity extends BaseActivity {
 
   public static final int MODE_REGULAR = 0;
 
+  public static final int MODE_RX_SORTED_DIFF = 4;
+
   public static final int MODE_SORTED_LIST = 1;
 
-  static final int DEFAULT_AMOUNT = 10;
+  static final int DEFAULT_AMOUNT = 5;
 
   static final String EXTRA_MODE = "extra_mode";
 
@@ -47,21 +45,11 @@ public class ListActivity extends BaseActivity {
 
   @Inject RestService mRestService;
 
-  private BehavioralAdapter<User> mBehavioralAdapter;
-
-  private DiffUtilAdapter mDiffUtilAdapter;
+  private BehavioralAdapter<User, UserViewHolder> mBehavioralAdapter;
 
   private RecyclerView mRecyclerView;
 
-  private RegularAdapter mRegularAdapter;
-
-  private RxAdapter mRxAdapter;
-
   private RxSortedDiffAdapter mRxSortedDiffAdapter;
-
-  private SortedDiffAdapter mSortedDiffAdapter;
-
-  private SortedListAdapter mSortedListAdapter;
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -84,6 +72,20 @@ public class ListActivity extends BaseActivity {
             }, throwable -> {
               Ln.w(throwable);
             });
+        return true;
+      case R.id.action_add_multi:
+        mRestService.getUsers(DEFAULT_AMOUNT)
+            .compose(Transformer.applyIoSingleTransformer())
+            .compose(bindToLifecycle())
+            .subscribe(users -> {
+              mBehavioralAdapter.add(users);
+            }, throwable -> {
+              Ln.w(throwable);
+            });
+        return true;
+      case R.id.action_remove_one_item:
+        int index = (int) (Math.random() * mBehavioralAdapter.getItemCount());
+        mBehavioralAdapter.remove(index);
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -119,6 +121,8 @@ public class ListActivity extends BaseActivity {
               break;
             case MODE_DIFF_UTIL:
               break;
+            case MODE_RX_SORTED_DIFF:
+              break;
           }
         }, throwable -> {
           Ln.w(throwable);
@@ -127,7 +131,47 @@ public class ListActivity extends BaseActivity {
 
   private void onModeRegular(List<User> users) {
     mBehavioralAdapter = new RegularAdapter();
-    mRecyclerView.setAdapter(mRegularAdapter);
-    mRegularAdapter.set(users);
+    mBehavioralAdapter.registerAdapterDataObserver(new RecyclerViewAdapterDataObserver());
+    mRecyclerView.setAdapter(mBehavioralAdapter);
+    mBehavioralAdapter.set(users);
+  }
+
+  private static class RecyclerViewAdapterDataObserver extends RecyclerView.AdapterDataObserver {
+
+    @Override
+    public void onChanged() {
+      super.onChanged();
+      Ln.d("onChanged");
+    }
+
+    @Override
+    public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
+      super.onItemRangeChanged(positionStart, itemCount, payload);
+      Ln.d("onItemRangeChangedWithPayload | positionStart: %d, itemCount: %d", positionStart, itemCount);
+    }
+
+    @Override
+    public void onItemRangeChanged(int positionStart, int itemCount) {
+      super.onItemRangeChanged(positionStart, itemCount);
+      Ln.d("onItemRangeChanged | positionStart: %d, itemCount: %d", positionStart, itemCount);
+    }
+
+    @Override
+    public void onItemRangeInserted(int positionStart, int itemCount) {
+      super.onItemRangeInserted(positionStart, itemCount);
+      Ln.d("onItemRangeInserted | positionStart: %d, itemCount: %d", positionStart, itemCount);
+    }
+
+    @Override
+    public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
+      super.onItemRangeMoved(fromPosition, toPosition, itemCount);
+      Ln.d("onItemRangeMoved | fromPosition: %d, toPosition: %d, itemCount: %d", fromPosition, toPosition, itemCount);
+    }
+
+    @Override
+    public void onItemRangeRemoved(int positionStart, int itemCount) {
+      super.onItemRangeRemoved(positionStart, itemCount);
+      Ln.d("onItemRangeRemoved | positionStart: %d, itemCount: %d", positionStart, itemCount);
+    }
   }
 }

@@ -33,4 +33,8 @@ public class RxSortedDiffAdapter extends RecyclerView.Adapter<UserViewHolder> {
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
     return UserViewHolder.create(parent);
   }
+
+  public RxSortedList<User> getUsers() {
+    return mUsers;
+  }
 }

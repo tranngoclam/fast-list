@@ -1,8 +1,6 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
 import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -16,7 +14,7 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> implements BehavioralAdapter<User> {
+public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   private final List<User> mUsers;
 
@@ -71,13 +69,16 @@ public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> implem
 
   @Override
   public void set(int index, User data) {
-
+    List<User> oldUsers = new ArrayList<>(mUsers);
+    mUsers.set(index, data);
+    sortThenCalculateDiff(oldUsers);
   }
 
-  public void set(List<User> newUsers) {
-    List<User> oldUsers = new ArrayList<>(this.mUsers);
-    this.mUsers.clear();
-    this.mUsers.addAll(newUsers);
+  @Override
+  public void set(List<User> data) {
+    List<User> oldUsers = new ArrayList<>(mUsers);
+    mUsers.clear();
+    mUsers.addAll(data);
     sortThenCalculateDiff(oldUsers);
   }
 
@@ -88,14 +89,14 @@ public class DiffUtilAdapter extends RecyclerView.Adapter<UserViewHolder> implem
       public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
         User oldUser = oldUsers.get(oldItemPosition);
         User newUser = mUsers.get(newItemPosition);
-        return TextUtils.equals(oldUser.getName(), newUser.getName());
+        return User.areContentsTheSame(oldUser, newUser);
       }
 
       @Override
       public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
         User oldUser = oldUsers.get(oldItemPosition);
         User newUser = mUsers.get(newItemPosition);
-        return TextUtils.equals(oldUser.getId(), newUser.getId());
+        return User.areItemsTheSame(oldUser, newUser);
       }
 
       @Override

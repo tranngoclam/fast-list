@@ -35,6 +35,8 @@ public class App extends Application {
           .build();
     }
 
+    getAppComponent().inject(this);
+
     // fresco
     ImagePipelineConfig imagePipelineConfig = OkHttpImagePipelineConfigFactory.newBuilder(this, mOkHttpClient)
         .setDownsampleEnabled(true)

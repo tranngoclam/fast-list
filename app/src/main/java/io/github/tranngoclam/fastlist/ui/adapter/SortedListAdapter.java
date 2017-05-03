@@ -1,7 +1,6 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
 import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.util.SortedListAdapterCallback;
 import android.view.ViewGroup;
 
@@ -14,7 +13,7 @@ import io.github.tranngoclam.fastlist.ui.UserViewHolder;
  * Created by lam on 4/30/17.
  */
 
-public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> implements BehavioralAdapter<User> {
+public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   private final SortedList<User> mUsers;
 
@@ -88,7 +87,7 @@ public class SortedListAdapter extends RecyclerView.Adapter<UserViewHolder> impl
 
   @Override
   public void set(List<User> data) {
-    mUsers.clear();
-    mUsers.addAll(data);
+    clear();
+    add(data);
   }
 }
