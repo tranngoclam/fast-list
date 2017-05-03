@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:app="http://schemas.android.com/apk/res-auto"
   xmlns:tools="http://schemas.android.com/tools"
   android:background="?attr/selectableItemBackground"
+  android:clickable="true"
+  android:focusable="true"
   style="@style/MdListItem.TwoLine.AvatarWithText">
 
   <LinearLayout style="@style/Base.MdListItem.Wrapper">
@@ -19,5 +22,6 @@
 
   <com.facebook.drawee.view.SimpleDraweeView
     android:id="@+id/avatar"
+    app:roundAsCircle="true"
     style="@style/Base.MdListItem.Avatar" />
 </RelativeLayout>

@@ -1,5 +1,7 @@
 package io.github.tranngoclam.fastlist.di;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -7,6 +9,7 @@ import dagger.Provides;
 import io.github.tranngoclam.fastlist.App;
 import io.github.tranngoclam.fastlist.RestService;
 import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -25,16 +28,30 @@ public class AppModule {
 
   @Singleton
   @Provides
-  OkHttpClient provideOkHttpClient() {
+  HttpLoggingInterceptor provideHttpLoggingInterceptor() {
+    HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
+    interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+    return interceptor;
+  }
+
+  @Singleton
+  @Provides
+  OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor) {
     return new OkHttpClient.Builder()
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .followSslRedirects(true)
+        .addInterceptor(interceptor)
         .build();
   }
 
   @Singleton
   @Provides
-  RestService provideRestService() {
+  RestService provideRestService(OkHttpClient okHttpClient) {
     Retrofit retrofit = new Retrofit.Builder()
-        .baseUrl("https://uinames.com/api")
+        .baseUrl("https://uinames.com/")
+        .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
         .build();

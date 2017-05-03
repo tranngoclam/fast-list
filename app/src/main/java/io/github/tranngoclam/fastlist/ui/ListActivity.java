@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -19,7 +20,8 @@ import io.github.tranngoclam.fastlist.ui.adapter.BehavioralAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RxSortedDiffAdapter;
 import io.github.tranngoclam.fastlist.util.Transformer;
-import me.henrytao.mdcore.utils.Ln;
+import io.github.tranngoclam.fastlist.util.Utils;
+import timber.log.Timber;
 
 public class ListActivity extends BaseActivity {
 
@@ -51,6 +53,8 @@ public class ListActivity extends BaseActivity {
 
   private RxSortedDiffAdapter mRxSortedDiffAdapter;
 
+  private Toolbar mToolbar;
+
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu_action, menu);
@@ -61,16 +65,14 @@ public class ListActivity extends BaseActivity {
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_add_single:
-        mRestService.getUsers(1)
-            .filter(users -> users != null && !users.isEmpty())
-            .map(users -> users.get(0))
-            .compose(Transformer.applyIoMaybeTransformer())
+        mRestService.getUser()
+            .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
             .subscribe(user -> {
-              int index = (int) (Math.random() * mBehavioralAdapter.getItemCount());
+              int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
               mBehavioralAdapter.add(index, user);
             }, throwable -> {
-              Ln.w(throwable);
+              Timber.w(throwable);
             });
         return true;
       case R.id.action_add_multi:
@@ -80,11 +82,11 @@ public class ListActivity extends BaseActivity {
             .subscribe(users -> {
               mBehavioralAdapter.add(users);
             }, throwable -> {
-              Ln.w(throwable);
+              Timber.w(throwable);
             });
         return true;
       case R.id.action_remove_one_item:
-        int index = (int) (Math.random() * mBehavioralAdapter.getItemCount());
+        int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
         mBehavioralAdapter.remove(index);
         return true;
       default:
@@ -103,11 +105,28 @@ public class ListActivity extends BaseActivity {
 
     getAppComponent().inject(this);
 
+    mToolbar = (Toolbar) findViewById(R.id.toolbar);
+    mToolbar.setNavigationOnClickListener(v -> onBackPressed());
+    setSupportActionBar(mToolbar);
+
     int mode = getIntent().getIntExtra(EXTRA_MODE, MODE_REACTIVE);
 
     mRecyclerView = (RecyclerView) findViewById(R.id.list);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
     mRecyclerView.setHasFixedSize(true);
+    switch (mode) {
+      case MODE_REGULAR:
+        mBehavioralAdapter = new RegularAdapter();
+        mBehavioralAdapter.registerAdapterDataObserver(new RecyclerViewAdapterDataObserver());
+        mRecyclerView.setAdapter(mBehavioralAdapter);
+        break;
+      case MODE_SORTED_LIST:
+        break;
+      case MODE_DIFF_UTIL:
+        break;
+      case MODE_RX_SORTED_DIFF:
+        break;
+    }
 
     mRestService.getUsers(DEFAULT_AMOUNT)
         .compose(Transformer.applyIoSingleTransformer())
@@ -125,14 +144,11 @@ public class ListActivity extends BaseActivity {
               break;
           }
         }, throwable -> {
-          Ln.w(throwable);
+          Timber.w(throwable);
         });
   }
 
   private void onModeRegular(List<User> users) {
-    mBehavioralAdapter = new RegularAdapter();
-    mBehavioralAdapter.registerAdapterDataObserver(new RecyclerViewAdapterDataObserver());
-    mRecyclerView.setAdapter(mBehavioralAdapter);
     mBehavioralAdapter.set(users);
   }
 
@@ -141,37 +157,37 @@ public class ListActivity extends BaseActivity {
     @Override
     public void onChanged() {
       super.onChanged();
-      Ln.d("onChanged");
+      Timber.d("onChanged");
     }
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount, Object payload) {
       super.onItemRangeChanged(positionStart, itemCount, payload);
-      Ln.d("onItemRangeChangedWithPayload | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("onItemRangeChangedWithPayload | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
       super.onItemRangeChanged(positionStart, itemCount);
-      Ln.d("onItemRangeChanged | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("onItemRangeChanged | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeInserted(int positionStart, int itemCount) {
       super.onItemRangeInserted(positionStart, itemCount);
-      Ln.d("onItemRangeInserted | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("onItemRangeInserted | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
 
     @Override
     public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
       super.onItemRangeMoved(fromPosition, toPosition, itemCount);
-      Ln.d("onItemRangeMoved | fromPosition: %d, toPosition: %d, itemCount: %d", fromPosition, toPosition, itemCount);
+      Timber.d("onItemRangeMoved | fromPosition: %d, toPosition: %d, itemCount: %d", fromPosition, toPosition, itemCount);
     }
 
     @Override
     public void onItemRangeRemoved(int positionStart, int itemCount) {
       super.onItemRangeRemoved(positionStart, itemCount);
-      Ln.d("onItemRangeRemoved | positionStart: %d, itemCount: %d", positionStart, itemCount);
+      Timber.d("onItemRangeRemoved | positionStart: %d, itemCount: %d", positionStart, itemCount);
     }
   }
 }

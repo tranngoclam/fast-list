@@ -13,6 +13,9 @@ import retrofit2.http.Query;
 
 public interface RestService {
 
-  @GET("/?ext")
+  @GET("/api/?ext")
+  Single<User> getUser();
+
+  @GET("/api/?ext")
   Single<List<User>> getUsers(@Query("amount") int amount);
 }
