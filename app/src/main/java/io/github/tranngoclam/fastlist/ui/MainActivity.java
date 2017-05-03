@@ -18,6 +18,12 @@ public class MainActivity extends BaseActivity {
     super.onCreate(savedInstanceState);
   }
 
+  @OnClick(R.id.diff_util)
+  public void onDiffUtilClick() {
+    Intent intent = ListActivity.newIntent(this, ListActivity.MODE_DIFF_UTIL);
+    startActivity(intent);
+  }
+
   @OnClick(R.id.regular)
   public void onRegularClick() {
     Intent intent = ListActivity.newIntent(this, ListActivity.MODE_REGULAR);

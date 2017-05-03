@@ -15,6 +15,7 @@ import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.adapter.BehavioralAdapter;
+import io.github.tranngoclam.fastlist.ui.adapter.DiffUtilAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RegularAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.RxSortedDiffAdapter;
 import io.github.tranngoclam.fastlist.ui.adapter.SortedListAdapter;
@@ -153,6 +154,9 @@ public class ListActivity extends BaseActivity {
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_DIFF_UTIL:
+        mBehavioralAdapter = new DiffUtilAdapter();
+        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_RX_SORTED_DIFF:
         break;
@@ -165,11 +169,10 @@ public class ListActivity extends BaseActivity {
           switch (mode) {
             case MODE_REGULAR:
             case MODE_SORTED_LIST:
+            case MODE_DIFF_UTIL:
               if (mBehavioralAdapter != null) {
                 mBehavioralAdapter.set(users);
               }
-              break;
-            case MODE_DIFF_UTIL:
               break;
             case MODE_RX_SORTED_DIFF:
               break;
