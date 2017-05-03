@@ -84,7 +84,7 @@ public class ListActivity extends BaseActivity {
               Timber.w(throwable);
             });
         return true;
-      case R.id.action_add_multi:
+      case R.id.action_add_multiple:
         mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
@@ -101,7 +101,7 @@ public class ListActivity extends BaseActivity {
           mBehavioralAdapter.set(1, user);
         }
         return true;
-      case R.id.action_update_multi:
+      case R.id.action_update_multiple:
         return true;
       case R.id.action_remove_one_item:
         if (mBehavioralAdapter != null) {

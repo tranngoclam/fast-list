@@ -14,13 +14,13 @@
           android:id="@+id/action_add_single"
           android:title="Add one item" />
         <item
-          android:id="@+id/action_add_multi"
+          android:id="@+id/action_add_multiple"
           android:title="Add multiple items" />
         <item
           android:id="@+id/action_update_single"
           android:title="Update one item" />
         <item
-          android:id="@+id/action_update_multi"
+          android:id="@+id/action_update_multiple"
           android:title="Update multiple items" />
         <item
           android:id="@+id/action_add_multi_at_specific_index"
