@@ -40,7 +40,7 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
-  public void add(List<User> data) {
+  public void addAll(List<User> data) {
     List<User> users = new ArrayList<>(mUsers);
     mUsers.addAll(data);
     sortThenCalculateDiff(users);
@@ -73,22 +73,23 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   @Override
   public void onBindViewHolder(UserViewHolder holder, int position) {
-    Timber.d("onBindViewHolder without payloads");
     holder.bind(mUsers.get(position));
   }
 
   @Override
   public void onBindViewHolder(UserViewHolder holder, int position, List<Object> payloads) {
-    Timber.d("onBindViewHolder with payloads");
     if (payloads != null && !payloads.isEmpty() && payloads.get(0) instanceof Bundle) {
       Bundle bundle = (Bundle) payloads.get(0);
       if (bundle.containsKey(KEY_AVATAR)) {
+        Timber.d("onBindViewHolder | avatar");
         holder.bindAvatar(bundle.getString(KEY_AVATAR));
       }
       if (bundle.containsKey(KEY_NAME)) {
+        Timber.d("onBindViewHolder | name");
         holder.bindName(bundle.getString(KEY_NAME));
       }
       if (bundle.containsKey(KEY_DESC)) {
+        Timber.d("onBindViewHolder | desc");
         holder.bindDesc(bundle.getString(KEY_DESC));
       }
     } else {
@@ -165,6 +166,7 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
         if (bundle.size() == 0) {
           return null;
         }
+        Timber.d("getChangePayload | size: %d", bundle.size());
         return bundle;
       }
 

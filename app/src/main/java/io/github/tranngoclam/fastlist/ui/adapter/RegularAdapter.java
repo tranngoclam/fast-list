@@ -26,7 +26,7 @@ public class RegularAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
-  public void add(List<User> data) {
+  public void addAll(List<User> data) {
     int positionStart = getItemCount();
     mUsers.addAll(data);
     notifyItemRangeInserted(positionStart, data.size());

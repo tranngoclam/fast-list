@@ -86,6 +86,9 @@ public class ListActivity extends BaseActivity {
                   int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
                   mBehavioralAdapter.add(index, user);
                 }
+              } else {
+                mRxSortedDiffAdapter.getRxSortedList().add(user)
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"));
               }
             }, throwable -> {
               Timber.w(throwable);
@@ -96,16 +99,22 @@ public class ListActivity extends BaseActivity {
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
             .subscribe(users -> {
-              mBehavioralAdapter.add(users);
+              if (mBehavioralAdapter != null) {
+                mBehavioralAdapter.addAll(users);
+              } else {
+                mRxSortedDiffAdapter.getRxSortedList().addAll(users)
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"));
+              }
             }, throwable -> {
               Timber.w(throwable);
             });
         return true;
       case R.id.action_update_single:
         User user = mBehavioralAdapter.get(1);
-        user.switchGender();
+        User newUser = new User(user.age, user.gender.equalsIgnoreCase("male") ? "female" : "male", user.name, user.password, user.phone,
+            user.photo, user.surname);
         if (mBehavioralAdapter != null) {
-          mBehavioralAdapter.set(1, user);
+          mBehavioralAdapter.set(1, newUser);
         }
         return true;
       case R.id.action_update_multiple:
@@ -121,14 +130,29 @@ public class ListActivity extends BaseActivity {
         }
         return true;
       case R.id.action_remove_single:
+        int index = 0;
         if (mBehavioralAdapter != null) {
-          int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
-          mBehavioralAdapter.remove(index);
+          index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
+          if (index >= 0 && index < mBehavioralAdapter.getItemCount()) {
+            mBehavioralAdapter.remove(index);
+          } else {
+            Timber.w(IndexOutOfBoundsException.class.getSimpleName());
+          }
+        } else {
+          index = Utils.randomize(mRxSortedDiffAdapter.getItemCount() - 1);
+          if (index >= 0 && index < mRxSortedDiffAdapter.getRxSortedList().size()) {
+            mRxSortedDiffAdapter.getRxSortedList().removeItemAt(index)
+                .subscribe(() -> Timber.d("RxSortedDiffAdapter | removeItemAt"));
+          } else {
+            Timber.w(IndexOutOfBoundsException.class.getSimpleName());
+          }
         }
         return true;
       case R.id.action_clear:
         if (mBehavioralAdapter != null) {
           mBehavioralAdapter.clear();
+        } else {
+
         }
       default:
         return super.onOptionsItemSelected(item);
@@ -175,6 +199,9 @@ public class ListActivity extends BaseActivity {
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_RX_SORTED_DIFF:
+        mRxSortedDiffAdapter = new RxSortedDiffAdapter();
+        mRxSortedDiffAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        mRecyclerView.setAdapter(mRxSortedDiffAdapter);
         break;
     }
 
@@ -191,6 +218,10 @@ public class ListActivity extends BaseActivity {
               }
               break;
             case MODE_RX_SORTED_DIFF:
+              if (mRxSortedDiffAdapter != null) {
+                mRxSortedDiffAdapter.getRxSortedList().set(users)
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"));
+              }
               break;
           }
         }, throwable -> {

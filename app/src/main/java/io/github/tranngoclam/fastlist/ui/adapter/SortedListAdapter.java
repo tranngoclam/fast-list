@@ -43,7 +43,7 @@ public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
-  public void add(List<User> data) {
+  public void addAll(List<User> data) {
     long begin = System.currentTimeMillis();
     mUsers.addAll(data);
     long end = System.currentTimeMillis();
@@ -100,7 +100,7 @@ public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
   @Override
   public void set(List<User> data) {
     clear();
-    add(data);
+    addAll(data);
   }
 
   public SortedList<User> getUsers() {

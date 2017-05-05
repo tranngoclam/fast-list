@@ -1,31 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ListView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/list"
   android:layout_width="match_parent"
-  android:layout_height="match_parent"
-  android:orientation="vertical"
-  android:padding="@dimen/mdLayoutSpacing">
-
-  <Button
-    android:id="@+id/regular"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Regular" />
-
-  <Button
-    android:id="@+id/diff_util"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="DiffUtil" />
-
-  <Button
-    android:id="@+id/sorted_list"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="SortedList" />
-
-  <Button
-    android:id="@+id/reactive"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="SortedDiff" />
-</LinearLayout>
+  android:layout_height="match_parent" />

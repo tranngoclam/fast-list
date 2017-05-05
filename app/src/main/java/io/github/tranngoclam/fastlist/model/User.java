@@ -25,29 +25,29 @@ public class User implements Comparable<User> {
     return nameCompare != 0 ? nameCompare : ageCompare != 0 ? ageCompare : genderCompare;
   }
 
+  public int age;
+
+  public String gender;
+
   public String name;
 
-  private int age;
+  public String password;
 
-  private Birthday birthday;
+  public String phone;
 
-  private CreditCard credit_card;
+  public String photo;
 
-  private String email;
+  public String surname;
 
-  private String gender;
-
-  private String password;
-
-  private String phone;
-
-  private String photo;
-
-  private String region;
-
-  private String surname;
-
-  private String title;
+  public User(int age, String gender, String name, String password, String phone, String photo, String surname) {
+    this.age = age;
+    this.gender = gender;
+    this.name = name;
+    this.password = password;
+    this.phone = phone;
+    this.photo = photo;
+    this.surname = surname;
+  }
 
   @Override
   public int compareTo(@NonNull User user) {

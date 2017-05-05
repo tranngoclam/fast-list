@@ -2,8 +2,9 @@ package io.github.tranngoclam.fastlist.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
-import butterknife.OnClick;
 import io.github.tranngoclam.fastlist.R;
 
 public class MainActivity extends BaseActivity {
@@ -16,23 +17,32 @@ public class MainActivity extends BaseActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-  }
-
-  @OnClick(R.id.diff_util)
-  public void onDiffUtilClick() {
-    Intent intent = ListActivity.newIntent(this, ListActivity.MODE_DIFF_UTIL);
-    startActivity(intent);
-  }
-
-  @OnClick(R.id.regular)
-  public void onRegularClick() {
-    Intent intent = ListActivity.newIntent(this, ListActivity.MODE_REGULAR);
-    startActivity(intent);
-  }
-
-  @OnClick(R.id.sorted_list)
-  public void onSortedListClick() {
-    Intent intent = ListActivity.newIntent(this, ListActivity.MODE_SORTED_LIST);
-    startActivity(intent);
+    ListView listView = (ListView) findViewById(R.id.list);
+    listView.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+        new String[]{
+            "Regular Adapter",
+            "Adapter with DiffUtil",
+            "Adapter with SortedList",
+            "Adapter with RxSortedDiffList"
+        }));
+    listView.setOnItemClickListener((parent, view, position, id) -> {
+      Intent intent;
+      switch (position) {
+        default:
+        case 0:
+          intent = ListActivity.newIntent(this, ListActivity.MODE_REGULAR);
+          break;
+        case 1:
+          intent = ListActivity.newIntent(this, ListActivity.MODE_DIFF_UTIL);
+          break;
+        case 2:
+          intent = ListActivity.newIntent(this, ListActivity.MODE_SORTED_LIST);
+          break;
+        case 3:
+          intent = ListActivity.newIntent(this, ListActivity.MODE_RX_SORTED_DIFF);
+          break;
+      }
+      startActivity(intent);
+    });
   }
 }

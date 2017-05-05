@@ -76,7 +76,7 @@ public abstract class RxSortedListCallback<T2> implements Comparator<T2>, ListUp
    * This class can be useful if you want to do multiple operations on a SortedList but don't
    * want to dispatch each event one by one, which may result in a performance issue.
    * <p>
-   * For example, if you are going to add multiple items to a SortedList, BatchedCallback call
+   * For example, if you are going to addAll multiple items to a SortedList, BatchedCallback call
    * convert individual <code>onInserted(index, 1)</code> calls into one
    * <code>onInserted(index, N)</code> if items are added into consecutive indices. This change
    * can help RecyclerView resolve changes much more easily.

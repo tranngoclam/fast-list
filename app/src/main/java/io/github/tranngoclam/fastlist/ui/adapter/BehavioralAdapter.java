@@ -12,9 +12,9 @@ public abstract class BehavioralAdapter<T, VH extends RecyclerView.ViewHolder> e
 
   public abstract void add(T data);
 
-  public abstract void add(List<T> data);
-
   public abstract void add(int index, T data);
+
+  public abstract void addAll(List<T> data);
 
   public abstract void clear();
 

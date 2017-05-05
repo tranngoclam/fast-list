@@ -4,7 +4,8 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
 
-import io.reactivex.Observable;
+import io.reactivex.Completable;
+import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 
 /**
@@ -174,12 +175,12 @@ public class SnappySortedList<T> {
     return item;
   }
 
-  public Observable<Void> set(Collection<T> items) {
+  public Completable set(Collection<T> items) {
     return set(items, false);
   }
 
-  public Observable<Void> set(Collection<T> items, boolean isSorted) {
-    return Observable.fromCallable(() -> {
+  public Completable set(Collection<T> items, boolean isSorted) {
+    return Single.fromCallable(() -> {
       T[] newItems = (T[]) Array.newInstance(mTClass, items.size());
       T[] oldItems = (T[]) Array.newInstance(mTClass, mData.length);
       System.arraycopy(mData, 0, oldItems, 0, mData.length);
@@ -190,12 +191,11 @@ public class SnappySortedList<T> {
       return SnappyDiffCallback.calculate(mCallback, oldItems, newItems, mSize, items.size());
     })
         .observeOn(AndroidSchedulers.mainThread())
-        .map(diffResultPair -> {
+        .flatMapCompletable(diffResultPair -> Completable.fromAction(() -> {
           mData = diffResultPair.second;
           mSize = diffResultPair.second.length;
           diffResultPair.first.dispatchUpdatesTo(mCallback);
-          return null;
-        });
+        }));
   }
 
   public int size() {
@@ -286,7 +286,7 @@ public class SnappySortedList<T> {
   private void addToData(int index, T item) {
     if (index > mSize) {
       throw new IndexOutOfBoundsException(
-          "cannot add item to " + index + " because size is " + mSize);
+          "cannot addAll item to " + index + " because size is " + mSize);
     }
     if (mSize == mData.length) {
       // we are at the limit enlarge
