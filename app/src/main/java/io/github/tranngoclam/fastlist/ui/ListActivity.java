@@ -10,8 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,15 +29,13 @@ import timber.log.Timber;
 
 public class ListActivity extends BaseActivity {
 
-  public static final int MODE_DIFF_UTIL = 2;
-
-  public static final int MODE_REACTIVE = 3;
+  public static final int MODE_DIFF_UTIL = 1;
 
   public static final int MODE_REGULAR = 0;
 
-  public static final int MODE_RX_SORTED_DIFF = 4;
+  public static final int MODE_RX_SORTED_DIFF = 3;
 
-  public static final int MODE_SORTED_LIST = 1;
+  public static final int MODE_SORTED_LIST = 2;
 
   static final String DEFAULT_REGION = "United States";
 
@@ -88,7 +84,7 @@ public class ListActivity extends BaseActivity {
                 }
               } else {
                 mRxSortedDiffAdapter.getRxSortedList().add(user)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"));
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"), Timber::w);
               }
             }, throwable -> {
               Timber.w(throwable);
@@ -103,7 +99,7 @@ public class ListActivity extends BaseActivity {
                 mBehavioralAdapter.addAll(users);
               } else {
                 mRxSortedDiffAdapter.getRxSortedList().addAll(users)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"));
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"), Timber::w);
               }
             }, throwable -> {
               Timber.w(throwable);
@@ -120,27 +116,22 @@ public class ListActivity extends BaseActivity {
       case R.id.action_update_and_insert_multiple:
         if (mBehavioralAdapter != null) {
           if (mBehavioralAdapter instanceof SortedListAdapter) {
-            SortedList<User> users = ((SortedListAdapter) mBehavioralAdapter).getUsers();
-            int size = users.size();
-            List<User> newUsers = new ArrayList<>(size);
-            for (int i = 0; i < size; i++) {
-              newUsers.add(users.get(i));
-            }
-            Collections.shuffle(newUsers);
+            SortedList<User> curUsers = ((SortedListAdapter) mBehavioralAdapter).getUsers();
+            List<User> newUsers = Utils.copyAndSwapName(curUsers);
             mBehavioralAdapter.set(newUsers);
           }
         } else {
           List<User> curUsers = mRxSortedDiffAdapter.getRxSortedList().getData();
-          List<User> newUsers = Utils.copyAndSwitchName(curUsers);
+          List<User> newUsers = Utils.copyAndSwapName(curUsers);
           mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
               .map(users -> {
                 newUsers.addAll(users);
                 return newUsers;
               })
-              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().set2(users))
+              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().set(users))
               .compose(Transformer.applyCompletableTransformer())
               .compose(bindToLifecycle())
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | update and insert"));
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | update and insert"), Timber::w);
         }
         return true;
       case R.id.action_remove_single:
@@ -156,7 +147,7 @@ public class ListActivity extends BaseActivity {
           index = Utils.randomize(mRxSortedDiffAdapter.getItemCount() - 1);
           if (index >= 0 && index < mRxSortedDiffAdapter.getRxSortedList().size()) {
             mRxSortedDiffAdapter.getRxSortedList().removeItemAt(index)
-                .subscribe(() -> Timber.d("RxSortedDiffAdapter | removeItemAt"));
+                .subscribe(() -> Timber.d("RxSortedDiffAdapter | removeItemAt"), Timber::w);
           } else {
             Timber.w(IndexOutOfBoundsException.class.getSimpleName());
           }
@@ -167,7 +158,7 @@ public class ListActivity extends BaseActivity {
           mBehavioralAdapter.clear();
         } else {
           mRxSortedDiffAdapter.getRxSortedList().clear()
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"));
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"), Timber::w);
         }
         return true;
       case R.id.notify_all:
@@ -202,7 +193,7 @@ public class ListActivity extends BaseActivity {
     mToolbar.setNavigationOnClickListener(v -> onBackPressed());
     setSupportActionBar(mToolbar);
 
-    int mode = getIntent().getIntExtra(EXTRA_MODE, MODE_REACTIVE);
+    int mode = getIntent().getIntExtra(EXTRA_MODE, MODE_REGULAR);
 
     mRecyclerView = (RecyclerView) findViewById(R.id.list);
     mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -248,7 +239,7 @@ public class ListActivity extends BaseActivity {
             case MODE_RX_SORTED_DIFF:
               if (mRxSortedDiffAdapter != null) {
                 mRxSortedDiffAdapter.getRxSortedList().set(users)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"));
+                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
               }
               break;
           }

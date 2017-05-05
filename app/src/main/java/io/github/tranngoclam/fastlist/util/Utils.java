@@ -1,5 +1,7 @@
 package io.github.tranngoclam.fastlist.util;
 
+import android.support.v7.util.SortedList;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +21,7 @@ public final class Utils {
 
   public static final String KEY_NAME = "key_name";
 
-  public static List<User> copyAndSwitchName(List<User> users) {
+  public static List<User> copyAndSwapName(List<User> users) {
     List<User> newUsers = new ArrayList<>(users.size());
     for (User user : users) {
       User newUser = new User(user.age, user.gender, user.surname, user.password, user.phone, user.photo, user.name);
@@ -29,8 +31,16 @@ public final class Utils {
     return newUsers;
   }
 
-  public static int randomize(int max) {
-    return new Random().nextInt(max);
+  public static List<User> copyAndSwapName(SortedList<User> users) {
+    List<User> newUsers = new ArrayList<>(users.size());
+    int size = users.size();
+    for (int i = 0; i < size; i++) {
+      User user = users.get(i);
+      User newUser = new User(user.age, user.gender, user.surname, user.password, user.phone, user.photo, user.name);
+      newUsers.add(newUser);
+    }
+    Collections.shuffle(newUsers);
+    return newUsers;
   }
 
   public static int randomize(int min, int max) {
@@ -43,5 +53,9 @@ public final class Utils {
 
     int range = max - min;
     return (int) (Math.random() * range) + min;
+  }
+
+  public static int randomize(int max) {
+    return new Random().nextInt(max);
   }
 }

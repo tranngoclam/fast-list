@@ -91,7 +91,6 @@ public class SnappySortedList<T> {
       System.arraycopy(items, 0, copy, 0, items.length);
       addAllInternal(copy);
     }
-
   }
 
   public void addAll(T... items) {

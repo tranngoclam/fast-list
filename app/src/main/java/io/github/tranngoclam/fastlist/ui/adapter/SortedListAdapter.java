@@ -8,7 +8,6 @@ import java.util.List;
 
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
-import timber.log.Timber;
 
 /**
  * Created by lam on 4/30/17.
@@ -43,15 +42,13 @@ public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
-  public void addAll(List<User> data) {
-    long begin = System.currentTimeMillis();
-    mUsers.addAll(data);
-    long end = System.currentTimeMillis();
-    Timber.v("begin: %d, end: %d, duration: %d", begin, end, end - begin);
+  public void add(int index, User data) {
+    // not support
   }
 
   @Override
-  public void add(int index, User data) {
+  public void addAll(List<User> data) {
+    mUsers.addAll(data);
   }
 
   @Override
