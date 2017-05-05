@@ -9,7 +9,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import io.github.tranngoclam.fastlist.App;
-import io.github.tranngoclam.fastlist.PreferenceService;
 import io.github.tranngoclam.fastlist.RestService;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -53,12 +52,6 @@ public class AppModule {
         .followSslRedirects(true)
         .addInterceptor(interceptor)
         .build();
-  }
-
-  @Singleton
-  @Provides
-  PreferenceService providePreferenceService(Context context) {
-    return new PreferenceService(context);
   }
 
   @Singleton

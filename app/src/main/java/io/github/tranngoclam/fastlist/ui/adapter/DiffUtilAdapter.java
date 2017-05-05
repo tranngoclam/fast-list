@@ -136,6 +136,10 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
     notifyDataSetChanged();
   }
 
+  public List<User> getUsers() {
+    return mUsers;
+  }
+
   private void sortThenCalculateDiff(List<User> users) {
     Collections.sort(mUsers, User::compare);
     DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {

@@ -11,25 +11,16 @@
     <menu>
       <group>
         <item
-          android:id="@+id/action_insert_single"
+          android:id="@+id/action_add_single"
           android:title="Insert single item" />
         <item
-          android:id="@+id/action_insert_multiple"
+          android:id="@+id/action_add_multiple"
           android:title="Insert multiple items" />
         <item
           android:id="@+id/action_update_single"
           android:title="Update single item" />
         <item
-          android:id="@+id/action_update_and_insert_multiple"
-          android:title="Update and insert multiple items" />
-        <item
-          android:id="@+id/action_update_and_remove_multiple"
-          android:title="Update and remove multiple items" />
-        <item
-          android:id="@+id/action_set_single_item"
-          android:title="Set single item" />
-        <item
-          android:id="@+id/action_set_items"
+          android:id="@+id/action_set_multiple_items"
           android:title="Set multiple items" />
         <item
           android:id="@+id/action_remove_single"
@@ -37,9 +28,6 @@
         <item
           android:id="@+id/action_clear"
           android:title="Clear all items" />
-        <item
-          android:id="@+id/notify_all"
-          android:title="Notify data set changed" />
       </group>
     </menu>
   </item>

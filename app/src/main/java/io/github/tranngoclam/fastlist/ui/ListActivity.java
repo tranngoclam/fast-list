@@ -14,7 +14,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.github.tranngoclam.fastlist.PreferenceService;
 import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
@@ -37,6 +36,8 @@ public class ListActivity extends BaseActivity {
 
   public static final int MODE_SORTED_LIST = 2;
 
+  static final int DEFAULT_AMOUNT = 5;
+
   static final String DEFAULT_REGION = "United States";
 
   static final String EXTRA_MODE = "extra_mode";
@@ -46,8 +47,6 @@ public class ListActivity extends BaseActivity {
     intent.putExtra(EXTRA_MODE, mode);
     return intent;
   }
-
-  @Inject PreferenceService mPreferenceService;
 
   @Inject RestService mRestService;
 
@@ -70,60 +69,87 @@ public class ListActivity extends BaseActivity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.action_insert_single:
-        mRestService.getUser(DEFAULT_REGION)
-            .compose(Transformer.applyIoSingleTransformer())
-            .compose(bindToLifecycle())
-            .subscribe(user -> {
-              if (mBehavioralAdapter != null) {
-                if (mBehavioralAdapter instanceof SortedListAdapter) {
-                  mBehavioralAdapter.add(user);
-                } else {
+      case R.id.action_add_single:
+        if (mBehavioralAdapter != null) {
+          if (mBehavioralAdapter instanceof SortedListAdapter) {
+            mRestService.getUser(DEFAULT_REGION)
+                .compose(Transformer.applyIoSingleTransformer())
+                .compose(bindToLifecycle())
+                .subscribe(user -> mBehavioralAdapter.add(user), Timber::w);
+          } else {
+            mRestService.getUser(DEFAULT_REGION)
+                .compose(Transformer.applyIoSingleTransformer())
+                .compose(bindToLifecycle())
+                .subscribe(user -> {
                   int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
                   mBehavioralAdapter.add(index, user);
-                }
-              } else {
-                mRxSortedDiffAdapter.getRxSortedList().add(user)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"), Timber::w);
-              }
-            }, throwable -> {
-              Timber.w(throwable);
-            });
-        return true;
-      case R.id.action_insert_multiple:
-        mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
-            .compose(Transformer.applyIoSingleTransformer())
-            .compose(bindToLifecycle())
-            .subscribe(users -> {
-              if (mBehavioralAdapter != null) {
-                mBehavioralAdapter.addAll(users);
-              } else {
-                mRxSortedDiffAdapter.getRxSortedList().addAll(users)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"), Timber::w);
-              }
-            }, throwable -> {
-              Timber.w(throwable);
-            });
-        return true;
-      case R.id.action_update_single:
-        User user = mBehavioralAdapter.get(1);
-        User newUser = new User(user.age, user.gender.equalsIgnoreCase("male") ? "female" : "male", user.name, user.password, user.phone,
-            user.photo, user.surname);
-        if (mBehavioralAdapter != null) {
-          mBehavioralAdapter.set(1, newUser);
+                }, Timber::w);
+          }
+        } else {
+          mRestService.getUser(DEFAULT_REGION)
+              .flatMapCompletable(user -> mRxSortedDiffAdapter.getRxSortedList().add(user))
+              .compose(Transformer.applyCompletableTransformer())
+              .compose(bindToLifecycle())
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"), Timber::w);
         }
         return true;
-      case R.id.action_update_and_insert_multiple:
+      case R.id.action_add_multiple:
+        if (mBehavioralAdapter != null) {
+          mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+              .compose(Transformer.applyIoSingleTransformer())
+              .compose(bindToLifecycle())
+              .subscribe(users -> mBehavioralAdapter.addAll(users), Timber::w);
+        } else {
+          mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().addAll(users))
+              .compose(Transformer.applyCompletableTransformer())
+              .compose(bindToLifecycle())
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"), Timber::w);
+        }
+        return true;
+      case R.id.action_update_single:
+        if (mBehavioralAdapter != null) {
+          User user = mBehavioralAdapter.get(1);
+          User newUser = new User(user.age, user.gender.equalsIgnoreCase("male") ? "female" : "male", user.name, user.password, user.phone,
+              user.photo, user.surname);
+          mBehavioralAdapter.set(1, newUser);
+        } else {
+          User user = mRxSortedDiffAdapter.getRxSortedList().get(1);
+          User newUser = new User(user.age, user.gender.equalsIgnoreCase("male") ? "female" : "male", user.name, user.password, user.phone,
+              user.photo, user.surname);
+          mRxSortedDiffAdapter.getRxSortedList().updateItemAt(1, newUser)
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | updateItemAt"), Timber::w);
+        }
+        return true;
+      case R.id.action_set_multiple_items:
         if (mBehavioralAdapter != null) {
           if (mBehavioralAdapter instanceof SortedListAdapter) {
             SortedList<User> curUsers = ((SortedListAdapter) mBehavioralAdapter).getUsers();
             List<User> newUsers = Utils.copyAndSwapName(curUsers);
-            mBehavioralAdapter.set(newUsers);
+            mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+                .map(users -> {
+                  newUsers.addAll(users);
+                  return newUsers;
+                })
+                .compose(Transformer.applyIoSingleTransformer())
+                .compose(bindToLifecycle())
+                .subscribe(users -> mBehavioralAdapter.set(newUsers), Timber::w);
+          } else if (mBehavioralAdapter instanceof DiffUtilAdapter) {
+            List<User> curUsers = ((DiffUtilAdapter) mBehavioralAdapter).getUsers();
+            List<User> newUsers = Utils.copyAndSwapName(curUsers);
+            mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+                .map(users -> {
+                  newUsers.addAll(users);
+                  return newUsers;
+                })
+                .compose(Transformer.applyIoSingleTransformer())
+                .compose(bindToLifecycle())
+                .subscribe(users -> mBehavioralAdapter.set(newUsers), Timber::w);
           }
         } else {
           List<User> curUsers = mRxSortedDiffAdapter.getRxSortedList().getData();
           List<User> newUsers = Utils.copyAndSwapName(curUsers);
-          mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
+          mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
               .map(users -> {
                 newUsers.addAll(users);
                 return newUsers;
@@ -131,7 +157,7 @@ public class ListActivity extends BaseActivity {
               .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().set(users))
               .compose(Transformer.applyCompletableTransformer())
               .compose(bindToLifecycle())
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | update and insert"), Timber::w);
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
         }
         return true;
       case R.id.action_remove_single:
@@ -160,18 +186,6 @@ public class ListActivity extends BaseActivity {
           mRxSortedDiffAdapter.getRxSortedList().clear()
               .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"), Timber::w);
         }
-        return true;
-      case R.id.notify_all:
-        mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
-            .compose(Transformer.applyIoSingleTransformer())
-            .compose(bindToLifecycle())
-            .subscribe(users -> {
-              if (mBehavioralAdapter != null) {
-                mBehavioralAdapter.setAndNotifyAll(users);
-              }
-            }, throwable -> {
-              Timber.w(throwable);
-            });
         return true;
       default:
         return super.onOptionsItemSelected(item);
@@ -224,7 +238,7 @@ public class ListActivity extends BaseActivity {
         break;
     }
 
-    mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
+    mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
         .compose(Transformer.applyIoSingleTransformer())
         .compose(bindToLifecycle())
         .subscribe(users -> {
@@ -243,9 +257,7 @@ public class ListActivity extends BaseActivity {
               }
               break;
           }
-        }, throwable -> {
-          Timber.w(throwable);
-        });
+        }, Timber::w);
   }
 
   @Override
