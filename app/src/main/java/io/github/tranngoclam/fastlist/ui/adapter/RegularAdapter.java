@@ -26,16 +26,16 @@ public class RegularAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
+  public void add(int index, User user) {
+    mUsers.add(index, user);
+    notifyItemInserted(index);
+  }
+
+  @Override
   public void addAll(List<User> data) {
     int positionStart = getItemCount();
     mUsers.addAll(data);
     notifyItemRangeInserted(positionStart, data.size());
-  }
-
-  @Override
-  public void add(int index, User user) {
-    mUsers.add(index, user);
-    notifyItemInserted(index);
   }
 
   @Override
@@ -88,5 +88,10 @@ public class RegularAdapter extends BehavioralAdapter<User, UserViewHolder> {
     mUsers.clear();
     mUsers.addAll(data);
     notifyDataSetChanged();
+  }
+
+  @Override
+  public void setAndNotifyAll(List<User> users) {
+    set(users);
   }
 }

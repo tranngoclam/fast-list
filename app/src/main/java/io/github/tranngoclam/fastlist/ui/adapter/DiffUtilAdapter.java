@@ -38,16 +38,16 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   @Override
-  public void addAll(List<User> data) {
+  public void add(int index, User data) {
     List<User> users = new ArrayList<>(mUsers);
-    mUsers.addAll(data);
+    mUsers.add(index, data);
     sortThenCalculateDiff(users);
   }
 
   @Override
-  public void add(int index, User data) {
+  public void addAll(List<User> data) {
     List<User> users = new ArrayList<>(mUsers);
-    mUsers.add(index, data);
+    mUsers.addAll(data);
     sortThenCalculateDiff(users);
   }
 
@@ -127,6 +127,13 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
     mUsers.clear();
     mUsers.addAll(data);
     sortThenCalculateDiff(users);
+  }
+
+  @Override
+  public void setAndNotifyAll(List<User> users) {
+    mUsers.clear();
+    mUsers.addAll(users);
+    notifyDataSetChanged();
   }
 
   private void sortThenCalculateDiff(List<User> users) {

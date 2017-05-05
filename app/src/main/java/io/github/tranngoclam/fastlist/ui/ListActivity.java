@@ -169,6 +169,19 @@ public class ListActivity extends BaseActivity {
           mRxSortedDiffAdapter.getRxSortedList().clear()
               .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"));
         }
+        return true;
+      case R.id.notify_all:
+        mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
+            .compose(Transformer.applyIoSingleTransformer())
+            .compose(bindToLifecycle())
+            .subscribe(users -> {
+              if (mBehavioralAdapter != null) {
+                mBehavioralAdapter.setAndNotifyAll(users);
+              }
+            }, throwable -> {
+              Timber.w(throwable);
+            });
+        return true;
       default:
         return super.onOptionsItemSelected(item);
     }
