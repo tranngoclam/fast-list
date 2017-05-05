@@ -1,7 +1,14 @@
 package io.github.tranngoclam.fastlist.model;
 
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+
+import timber.log.Timber;
+
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_AVATAR;
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_DESC;
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_NAME;
 
 /**
  * Created by lam on 4/16/17.
@@ -23,6 +30,24 @@ public class User implements Comparable<User> {
     int ageCompare = user1.age - user2.age;
     int genderCompare = user1.gender.compareToIgnoreCase(user2.gender);
     return nameCompare != 0 ? nameCompare : ageCompare != 0 ? ageCompare : genderCompare;
+  }
+
+  public static Object getChangePayload(User oldUser, User newUser) {
+    Bundle bundle = new Bundle();
+    if (!TextUtils.equals(oldUser.getAvatar(), newUser.getAvatar())) {
+      bundle.putString(KEY_AVATAR, newUser.getAvatar());
+    }
+    if (!TextUtils.equals(oldUser.getName(), newUser.getName())) {
+      bundle.putString(KEY_NAME, newUser.getName());
+    }
+    if (!TextUtils.equals(oldUser.getDesc(), newUser.getDesc())) {
+      bundle.putString(KEY_DESC, newUser.getDesc());
+    }
+    if (bundle.size() == 0) {
+      return null;
+    }
+    Timber.d("getChangePayload | size: %d", bundle.size());
+    return bundle;
   }
 
   public int age;

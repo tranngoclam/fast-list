@@ -3,7 +3,6 @@ package io.github.tranngoclam.fastlist.ui.adapter;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -12,11 +11,6 @@ import java.util.List;
 
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
-import timber.log.Timber;
-
-import static io.github.tranngoclam.fastlist.util.Utils.KEY_AVATAR;
-import static io.github.tranngoclam.fastlist.util.Utils.KEY_DESC;
-import static io.github.tranngoclam.fastlist.util.Utils.KEY_NAME;
 
 /**
  * Created by lam on 4/30/17.
@@ -80,18 +74,7 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
   public void onBindViewHolder(UserViewHolder holder, int position, List<Object> payloads) {
     if (payloads != null && !payloads.isEmpty() && payloads.get(0) instanceof Bundle) {
       Bundle bundle = (Bundle) payloads.get(0);
-      if (bundle.containsKey(KEY_AVATAR)) {
-        Timber.d("onBindViewHolder | avatar");
-        holder.bindAvatar(bundle.getString(KEY_AVATAR));
-      }
-      if (bundle.containsKey(KEY_NAME)) {
-        Timber.d("onBindViewHolder | name");
-        holder.bindName(bundle.getString(KEY_NAME));
-      }
-      if (bundle.containsKey(KEY_DESC)) {
-        Timber.d("onBindViewHolder | desc");
-        holder.bindDesc(bundle.getString(KEY_DESC));
-      }
+      holder.bind(bundle);
     } else {
       onBindViewHolder(holder, position);
     }
@@ -157,21 +140,7 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
       public Object getChangePayload(int oldItemPosition, int newItemPosition) {
         User oldUser = users.get(oldItemPosition);
         User newUser = mUsers.get(newItemPosition);
-        Bundle bundle = new Bundle();
-        if (!TextUtils.equals(oldUser.getAvatar(), newUser.getAvatar())) {
-          bundle.putString(KEY_AVATAR, newUser.getAvatar());
-        }
-        if (!TextUtils.equals(oldUser.getName(), newUser.getName())) {
-          bundle.putString(KEY_NAME, newUser.getName());
-        }
-        if (!TextUtils.equals(oldUser.getDesc(), newUser.getDesc())) {
-          bundle.putString(KEY_DESC, newUser.getDesc());
-        }
-        if (bundle.size() == 0) {
-          return null;
-        }
-        Timber.d("getChangePayload | size: %d", bundle.size());
-        return bundle;
+        return User.getChangePayload(oldUser, newUser);
       }
 
       @Override
