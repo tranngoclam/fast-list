@@ -11,10 +11,10 @@
     <menu>
       <group>
         <item
-          android:id="@+id/action_add_single"
+          android:id="@+id/action_insert_single"
           android:title="Add one item" />
         <item
-          android:id="@+id/action_add_multiple"
+          android:id="@+id/action_insert_multiple"
           android:title="Add multiple items" />
         <item
           android:id="@+id/action_update_single"
@@ -32,7 +32,7 @@
           android:id="@+id/action_set_items"
           android:title="Set items" />
         <item
-          android:id="@+id/action_remove_one_item"
+          android:id="@+id/action_remove_single"
           android:title="Remove one item" />
         <item
           android:id="@+id/action_clear"

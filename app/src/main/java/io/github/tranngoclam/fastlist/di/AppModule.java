@@ -1,5 +1,7 @@
 package io.github.tranngoclam.fastlist.di;
 
+import android.content.Context;
+
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
@@ -7,6 +9,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 import io.github.tranngoclam.fastlist.App;
+import io.github.tranngoclam.fastlist.PreferenceService;
 import io.github.tranngoclam.fastlist.RestService;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -20,10 +23,16 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 public class AppModule {
 
-  private final App app;
+  private final App mApp;
 
   public AppModule(App app) {
-    this.app = app;
+    this.mApp = app;
+  }
+
+  @Singleton
+  @Provides
+  Context provideContext() {
+    return mApp.getApplicationContext();
   }
 
   @Singleton
@@ -44,6 +53,12 @@ public class AppModule {
         .followSslRedirects(true)
         .addInterceptor(interceptor)
         .build();
+  }
+
+  @Singleton
+  @Provides
+  PreferenceService providePreferenceService(Context context) {
+    return new PreferenceService(context);
   }
 
   @Singleton

@@ -102,4 +102,8 @@ public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
     clear();
     add(data);
   }
+
+  public SortedList<User> getUsers() {
+    return mUsers;
+  }
 }

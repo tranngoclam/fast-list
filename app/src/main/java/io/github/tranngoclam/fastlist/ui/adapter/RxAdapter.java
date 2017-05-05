@@ -23,16 +23,16 @@ public class RxAdapter extends RecyclerView.Adapter<UserViewHolder> {
 
   @Override
   public int getItemCount() {
-    return 0;
+    return mUsers.size();
   }
 
   @Override
   public void onBindViewHolder(UserViewHolder holder, int position) {
-
+    holder.bind(mUsers.get(position));
   }
 
   @Override
   public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-    return null;
+    return UserViewHolder.create(parent);
   }
 }

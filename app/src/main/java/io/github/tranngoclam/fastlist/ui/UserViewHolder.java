@@ -34,8 +34,20 @@ public class UserViewHolder extends RecyclerView.ViewHolder {
   }
 
   public void bind(User user) {
-    name.setText(user.getName());
-    desc.setText(user.getDesc());
-    avatar.setImageURI(Uri.parse(user.getAvatar()));
+    bindName(user.getName());
+    bindDesc(user.getDesc());
+    bindAvatar(user.getAvatar());
+  }
+
+  public void bindAvatar(String avatar) {
+    this.avatar.setImageURI(Uri.parse(avatar));
+  }
+
+  public void bindDesc(String desc) {
+    this.desc.setText(desc);
+  }
+
+  public void bindName(String name) {
+    this.name.setText(name);
   }
 }

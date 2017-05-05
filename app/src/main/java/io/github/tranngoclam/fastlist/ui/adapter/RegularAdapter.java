@@ -22,7 +22,7 @@ public class RegularAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   @Override
   public void add(User data) {
-
+    mUsers.add(data);
   }
 
   @Override

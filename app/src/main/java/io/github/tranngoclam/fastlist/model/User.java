@@ -10,7 +10,8 @@ import android.text.TextUtils;
 public class User implements Comparable<User> {
 
   public static boolean areContentsTheSame(User oldUser, User newUser) {
-    return oldUser.age == newUser.age && TextUtils.equals(oldUser.gender, newUser.gender) && TextUtils.equals(oldUser.name, newUser.name);
+    return TextUtils.equals(oldUser.getName(), newUser.getName()) && oldUser.age == newUser.age && TextUtils
+        .equals(oldUser.gender, newUser.gender);
   }
 
   public static boolean areItemsTheSame(User user1, User user2) {

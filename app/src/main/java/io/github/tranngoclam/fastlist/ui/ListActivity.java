@@ -3,14 +3,20 @@ package io.github.tranngoclam.fastlist.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import javax.inject.Inject;
 
+import io.github.tranngoclam.fastlist.PreferenceService;
 import io.github.tranngoclam.fastlist.R;
 import io.github.tranngoclam.fastlist.RestService;
 import io.github.tranngoclam.fastlist.model.User;
@@ -35,8 +41,6 @@ public class ListActivity extends BaseActivity {
 
   public static final int MODE_SORTED_LIST = 1;
 
-  static final int DEFAULT_AMOUNT = 500;
-
   static final String DEFAULT_REGION = "United States";
 
   static final String EXTRA_MODE = "extra_mode";
@@ -46,6 +50,8 @@ public class ListActivity extends BaseActivity {
     intent.putExtra(EXTRA_MODE, mode);
     return intent;
   }
+
+  @Inject PreferenceService mPreferenceService;
 
   @Inject RestService mRestService;
 
@@ -68,7 +74,7 @@ public class ListActivity extends BaseActivity {
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.action_add_single:
+      case R.id.action_insert_single:
         mRestService.getUser(DEFAULT_REGION)
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
@@ -85,8 +91,8 @@ public class ListActivity extends BaseActivity {
               Timber.w(throwable);
             });
         return true;
-      case R.id.action_add_multiple:
-        mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+      case R.id.action_insert_multiple:
+        mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
             .compose(Transformer.applyIoSingleTransformer())
             .compose(bindToLifecycle())
             .subscribe(users -> {
@@ -103,8 +109,18 @@ public class ListActivity extends BaseActivity {
         }
         return true;
       case R.id.action_update_multiple:
+        if (mBehavioralAdapter instanceof SortedListAdapter) {
+          SortedList<User> users = ((SortedListAdapter) mBehavioralAdapter).getUsers();
+          int size = users.size();
+          List<User> newUsers = new ArrayList<>(size);
+          for (int i = 0; i < size; i++) {
+            newUsers.add(users.get(i));
+          }
+          Collections.shuffle(newUsers);
+          mBehavioralAdapter.set(newUsers);
+        }
         return true;
-      case R.id.action_remove_one_item:
+      case R.id.action_remove_single:
         if (mBehavioralAdapter != null) {
           int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
           mBehavioralAdapter.remove(index);
@@ -162,7 +178,7 @@ public class ListActivity extends BaseActivity {
         break;
     }
 
-    mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+    mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
         .compose(Transformer.applyIoSingleTransformer())
         .compose(bindToLifecycle())
         .subscribe(users -> {
@@ -185,7 +201,7 @@ public class ListActivity extends BaseActivity {
   @Override
   protected void onDestroy() {
     RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-    if (adapter != null) {
+    if (adapter != null && mAdapterDataObserver != null) {
       adapter.unregisterAdapterDataObserver(mAdapterDataObserver);
     }
     super.onDestroy();

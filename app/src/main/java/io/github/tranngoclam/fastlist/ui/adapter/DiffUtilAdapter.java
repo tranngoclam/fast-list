@@ -1,6 +1,9 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
+import android.text.TextUtils;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -9,12 +12,19 @@ import java.util.List;
 
 import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
+import timber.log.Timber;
 
 /**
  * Created by lam on 4/30/17.
  */
 
 public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
+
+  static final String KEY_AVATAR = "key_avatar";
+
+  static final String KEY_DESC = "key_desc";
+
+  static final String KEY_NAME = "key_name";
 
   private final List<User> mUsers;
 
@@ -63,7 +73,27 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   @Override
   public void onBindViewHolder(UserViewHolder holder, int position) {
+    Timber.d("onBindViewHolder without payloads");
     holder.bind(mUsers.get(position));
+  }
+
+  @Override
+  public void onBindViewHolder(UserViewHolder holder, int position, List<Object> payloads) {
+    Timber.d("onBindViewHolder with payloads");
+    if (payloads != null && !payloads.isEmpty() && payloads.get(0) instanceof Bundle) {
+      Bundle bundle = (Bundle) payloads.get(0);
+      if (bundle.containsKey(KEY_AVATAR)) {
+        holder.bindAvatar(bundle.getString(KEY_AVATAR));
+      }
+      if (bundle.containsKey(KEY_NAME)) {
+        holder.bindName(bundle.getString(KEY_NAME));
+      }
+      if (bundle.containsKey(KEY_DESC)) {
+        holder.bindDesc(bundle.getString(KEY_DESC));
+      }
+    } else {
+      onBindViewHolder(holder, position);
+    }
   }
 
   @Override
@@ -101,30 +131,51 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
   }
 
   private void sortThenCalculateDiff(List<User> users) {
-    Collections.sort(users, (o1, o2) -> o1.getName().compareTo(o2.getName()));
+    Collections.sort(mUsers, User::compare);
     DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffUtil.Callback() {
       @Override
       public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        User oldUser = mUsers.get(oldItemPosition);
-        User newUser = users.get(newItemPosition);
+        User oldUser = users.get(oldItemPosition);
+        User newUser = mUsers.get(newItemPosition);
         return User.areContentsTheSame(oldUser, newUser);
       }
 
       @Override
       public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-        User oldUser = mUsers.get(oldItemPosition);
-        User newUser = users.get(newItemPosition);
+        User oldUser = users.get(oldItemPosition);
+        User newUser = mUsers.get(newItemPosition);
         return User.areItemsTheSame(oldUser, newUser);
+      }
+
+      @Nullable
+      @Override
+      public Object getChangePayload(int oldItemPosition, int newItemPosition) {
+        User oldUser = users.get(oldItemPosition);
+        User newUser = mUsers.get(newItemPosition);
+        Bundle bundle = new Bundle();
+        if (!TextUtils.equals(oldUser.getAvatar(), newUser.getAvatar())) {
+          bundle.putString(KEY_AVATAR, newUser.getAvatar());
+        }
+        if (!TextUtils.equals(oldUser.getName(), newUser.getName())) {
+          bundle.putString(KEY_NAME, newUser.getName());
+        }
+        if (!TextUtils.equals(oldUser.getDesc(), newUser.getDesc())) {
+          bundle.putString(KEY_DESC, newUser.getDesc());
+        }
+        if (bundle.size() == 0) {
+          return null;
+        }
+        return bundle;
       }
 
       @Override
       public int getNewListSize() {
-        return users.size();
+        return mUsers.size();
       }
 
       @Override
       public int getOldListSize() {
-        return mUsers.size();
+        return users.size();
       }
     });
     diffResult.dispatchUpdatesTo(this);

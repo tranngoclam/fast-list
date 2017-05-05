@@ -9,7 +9,11 @@ import java.util.Random;
 public final class Utils {
 
   public static int randomize(int min, int max) {
-    return min + new Random().nextInt(max);
+    if (min == max) return min;
+    if (max < min) throw new IllegalArgumentException("Max should be greater than min");
+
+    int range = max - min;
+    return (int) (Math.random() * range) + min;
   }
 
   public static int randomize(int max) {
