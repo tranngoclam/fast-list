@@ -6,7 +6,7 @@ import android.support.v7.util.ListUpdateCallback;
 import java.util.Comparator;
 
 /**
- * The class that controls the behavior of the {@link me.silong.snappyadapter.RxSortedList}.
+ * The class that controls the behavior of the {@link RxSortedDiffList}.
  * <p>
  * It defines how items should be sorted and how duplicates should be handled.
  * <p>

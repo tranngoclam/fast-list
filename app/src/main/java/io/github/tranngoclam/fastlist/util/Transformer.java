@@ -1,5 +1,6 @@
 package io.github.tranngoclam.fastlist.util;
 
+import io.reactivex.CompletableTransformer;
 import io.reactivex.MaybeTransformer;
 import io.reactivex.SingleTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -10,6 +11,12 @@ import io.reactivex.schedulers.Schedulers;
  */
 
 public final class Transformer {
+
+  public static CompletableTransformer applyCompletableTransformer() {
+    return completable -> completable
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread());
+  }
 
   public static <T> MaybeTransformer<T, T> applyIoMaybeTransformer() {
     return maybe -> maybe

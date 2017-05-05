@@ -117,20 +117,34 @@ public class ListActivity extends BaseActivity {
           mBehavioralAdapter.set(1, newUser);
         }
         return true;
-      case R.id.action_update_multiple:
-        if (mBehavioralAdapter instanceof SortedListAdapter) {
-          SortedList<User> users = ((SortedListAdapter) mBehavioralAdapter).getUsers();
-          int size = users.size();
-          List<User> newUsers = new ArrayList<>(size);
-          for (int i = 0; i < size; i++) {
-            newUsers.add(users.get(i));
+      case R.id.action_update_and_insert_multiple:
+        if (mBehavioralAdapter != null) {
+          if (mBehavioralAdapter instanceof SortedListAdapter) {
+            SortedList<User> users = ((SortedListAdapter) mBehavioralAdapter).getUsers();
+            int size = users.size();
+            List<User> newUsers = new ArrayList<>(size);
+            for (int i = 0; i < size; i++) {
+              newUsers.add(users.get(i));
+            }
+            Collections.shuffle(newUsers);
+            mBehavioralAdapter.set(newUsers);
           }
-          Collections.shuffle(newUsers);
-          mBehavioralAdapter.set(newUsers);
+        } else {
+          List<User> curUsers = mRxSortedDiffAdapter.getRxSortedList().getData();
+          List<User> newUsers = Utils.copyAndSwitchName(curUsers);
+          mRestService.getUsers(mPreferenceService.getDefaultAmount(), DEFAULT_REGION)
+              .map(users -> {
+                newUsers.addAll(users);
+                return newUsers;
+              })
+              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().set2(users))
+              .compose(Transformer.applyCompletableTransformer())
+              .compose(bindToLifecycle())
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | update and insert"));
         }
         return true;
       case R.id.action_remove_single:
-        int index = 0;
+        int index;
         if (mBehavioralAdapter != null) {
           index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
           if (index >= 0 && index < mBehavioralAdapter.getItemCount()) {
@@ -152,7 +166,8 @@ public class ListActivity extends BaseActivity {
         if (mBehavioralAdapter != null) {
           mBehavioralAdapter.clear();
         } else {
-
+          mRxSortedDiffAdapter.getRxSortedList().clear()
+              .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"));
         }
       default:
         return super.onOptionsItemSelected(item);

@@ -2,11 +2,11 @@ package io.github.tranngoclam.fastlist;
 
 import android.support.v7.widget.RecyclerView;
 
-public abstract class RxRecyclerViewCallback<T> extends RxSortedListCallback<T> {
+public abstract class RxRecyclerViewAdapterCallback<T> extends RxSortedListCallback<T> {
 
   private final RecyclerView.Adapter mAdapter;
 
-  public RxRecyclerViewCallback(RecyclerView.Adapter adapter) {
+  public RxRecyclerViewAdapterCallback(RecyclerView.Adapter adapter) {
     mAdapter = adapter;
   }
 

@@ -14,17 +14,15 @@ import io.github.tranngoclam.fastlist.model.User;
 import io.github.tranngoclam.fastlist.ui.UserViewHolder;
 import timber.log.Timber;
 
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_AVATAR;
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_DESC;
+import static io.github.tranngoclam.fastlist.util.Utils.KEY_NAME;
+
 /**
  * Created by lam on 4/30/17.
  */
 
 public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
-
-  static final String KEY_AVATAR = "key_avatar";
-
-  static final String KEY_DESC = "key_desc";
-
-  static final String KEY_NAME = "key_name";
 
   private final List<User> mUsers;
 

@@ -1,5 +1,9 @@
 package io.github.tranngoclam.fastlist;
 
+import android.support.v4.util.Pair;
+import android.support.v7.util.DiffUtil;
+import android.support.v7.widget.RecyclerView;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Collection;
@@ -7,6 +11,7 @@ import java.util.Collection;
 import io.reactivex.Completable;
 import io.reactivex.Single;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import timber.log.Timber;
 
 /**
  * Created by lam on 5/2/17.
@@ -33,6 +38,8 @@ public class SnappySortedList<T> {
 
   T[] mData;
 
+  private RecyclerView.Adapter mAdapter;
+
   private RxSortedListCallback.BatchedCallback mBatchedCallback;
 
   private RxSortedListCallback<T> mCallback;
@@ -45,10 +52,19 @@ public class SnappySortedList<T> {
 
   private int mOldDataStart;
 
+  private OnPayloadChangedListener<T> mPayloadCallback;
+
   private int mSize;
 
   public SnappySortedList(Class<T> klass, RxSortedListCallback<T> callback) {
     this(klass, callback, MIN_CAPACITY);
+  }
+
+  public SnappySortedList(Class<T> klass, RxSortedListCallback<T> callback, RecyclerView.Adapter adapter,
+      OnPayloadChangedListener<T> payloadCallback) {
+    this(klass, callback, MIN_CAPACITY);
+    mAdapter = adapter;
+    mPayloadCallback = payloadCallback;
   }
 
   public SnappySortedList(Class<T> klass, RxSortedListCallback<T> callback, int initialCapacity) {
@@ -180,21 +196,22 @@ public class SnappySortedList<T> {
   }
 
   public Completable set(Collection<T> items, boolean isSorted) {
-    return Single.fromCallable(() -> {
-      T[] newItems = (T[]) Array.newInstance(mTClass, items.size());
-      T[] oldItems = (T[]) Array.newInstance(mTClass, mData.length);
-      System.arraycopy(mData, 0, oldItems, 0, mData.length);
-      items.toArray(newItems);
-      if (!isSorted) {
-        Arrays.sort(newItems, mCallback);
-      }
-      return SnappyDiffCallback.calculate(mCallback, oldItems, newItems, mSize, items.size());
-    })
+    return calculateDiff(items, isSorted)
         .observeOn(AndroidSchedulers.mainThread())
         .flatMapCompletable(diffResultPair -> Completable.fromAction(() -> {
           mData = diffResultPair.second;
           mSize = diffResultPair.second.length;
           diffResultPair.first.dispatchUpdatesTo(mCallback);
+        }));
+  }
+
+  public Completable setThenDispatchToAdapter(Collection<T> items) {
+    return calculateDiff(items, false)
+        .observeOn(AndroidSchedulers.mainThread())
+        .flatMapCompletable(diffResultPair -> Completable.fromAction(() -> {
+          mData = diffResultPair.second;
+          mSize = diffResultPair.second.length;
+          diffResultPair.first.dispatchUpdatesTo(mAdapter);
         }));
   }
 
@@ -301,6 +318,20 @@ public class SnappySortedList<T> {
       mData[index] = item;
     }
     mSize++;
+  }
+
+  private Single<Pair<DiffUtil.DiffResult, T[]>> calculateDiff(Collection<T> items, boolean isSorted) {
+    return Single.fromCallable(() -> {
+      Timber.d("SnappySortedList | calculating diff...");
+      T[] newItems = (T[]) Array.newInstance(mTClass, items.size());
+      T[] oldItems = (T[]) Array.newInstance(mTClass, mData.length);
+      System.arraycopy(mData, 0, oldItems, 0, mData.length);
+      items.toArray(newItems);
+      if (!isSorted) {
+        Arrays.sort(newItems, mCallback);
+      }
+      return SnappyDiffCallback.calculate(mCallback, oldItems, newItems, mSize, items.size(), mPayloadCallback);
+    });
   }
 
   private int deduplicate(T[] items) {
