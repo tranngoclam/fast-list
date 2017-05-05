@@ -27,6 +27,4 @@ public abstract class BehavioralAdapter<T, VH extends RecyclerView.ViewHolder> e
   public abstract void set(List<T> data);
 
   public abstract void set(int index, T data);
-
-  public abstract void setAndNotifyAll(List<T> users);
 }

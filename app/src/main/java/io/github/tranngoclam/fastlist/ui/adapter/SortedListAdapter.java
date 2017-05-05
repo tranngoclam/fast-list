@@ -100,11 +100,6 @@ public class SortedListAdapter extends BehavioralAdapter<User, UserViewHolder> {
     addAll(data);
   }
 
-  @Override
-  public void setAndNotifyAll(List<User> users) {
-    set(users);
-  }
-
   public SortedList<User> getUsers() {
     return mUsers;
   }

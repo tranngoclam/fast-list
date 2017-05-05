@@ -53,7 +53,9 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
 
   @Override
   public void clear() {
+    int size = getItemCount();
     mUsers.clear();
+    notifyItemRangeRemoved(0, size);
   }
 
   @Override
@@ -127,13 +129,6 @@ public class DiffUtilAdapter extends BehavioralAdapter<User, UserViewHolder> {
     mUsers.clear();
     mUsers.addAll(data);
     sortThenCalculateDiff(users);
-  }
-
-  @Override
-  public void setAndNotifyAll(List<User> users) {
-    mUsers.clear();
-    mUsers.addAll(users);
-    notifyDataSetChanged();
   }
 
   public List<User> getUsers() {
