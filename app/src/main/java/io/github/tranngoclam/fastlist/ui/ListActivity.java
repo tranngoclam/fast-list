@@ -136,7 +136,8 @@ public class ListActivity extends BaseActivity {
           }
         } else {
           List<User> curUsers = mRxSortedDiffAdapter.getRxSortedList().getData();
-          List<User> newUsers = Utils.copyAndSwapName(curUsers);
+          int size = mRxSortedDiffAdapter.getRxSortedList().size();
+          List<User> newUsers = Utils.copyAndSwapName(curUsers, size);
           mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
               .compose(Transformer.applyIoTransformer())
               .map(users -> {

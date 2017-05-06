@@ -21,9 +21,10 @@ public final class Utils {
 
   public static final String KEY_NAME = "key_name";
 
-  public static List<User> copyAndSwapName(List<User> users) {
-    List<User> newUsers = new ArrayList<>(users.size());
-    for (User user : users) {
+  public static List<User> copyAndSwapName(List<User> users, int size) {
+    List<User> newUsers = new ArrayList<>(size);
+    for (int i = 0; i < size; i++) {
+      User user = users.get(i);
       User newUser = new User(user.age, user.gender, user.surname, user.password, user.phone, user.photo, user.name);
       newUsers.add(newUser);
     }
