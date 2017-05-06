@@ -32,9 +32,8 @@ public final class Utils {
     return newUsers;
   }
 
-  public static List<User> copyAndSwapName(SortedList<User> users) {
-    List<User> newUsers = new ArrayList<>(users.size());
-    int size = users.size();
+  public static List<User> copyAndSwapName(SortedList<User> users, int size) {
+    List<User> newUsers = new ArrayList<>(size);
     for (int i = 0; i < size; i++) {
       User user = users.get(i);
       User newUser = new User(user.age, user.gender, user.surname, user.password, user.phone, user.photo, user.name);

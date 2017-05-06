@@ -3,6 +3,7 @@ package io.github.tranngoclam.fastlist.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -124,13 +125,25 @@ public class ListActivity extends BaseActivity {
       case R.id.action_set_multiple_items:
         if (mBehavioralAdapter != null) {
           if (mBehavioralAdapter instanceof SortedListAdapter) {
+            SortedList<User> curUsers = ((SortedListAdapter) mBehavioralAdapter).getUsers();
+            List<User> newUsers = Utils.copyAndSwapName(curUsers, curUsers.size());
             mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
                 .compose(Transformer.applyIoTransformer())
+                .map(users -> {
+                  newUsers.addAll(users);
+                  return newUsers;
+                })
                 .compose(bindToLifecycle())
                 .subscribe(users -> mBehavioralAdapter.set(users), Timber::w);
           } else if (mBehavioralAdapter instanceof DiffUtilAdapter) {
+            List<User> curUsers = ((DiffUtilAdapter) mBehavioralAdapter).getUsers();
+            List<User> newUsers = Utils.copyAndSwapName(curUsers, curUsers.size());
             mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
                 .compose(Transformer.applyIoTransformer())
+                .map(users -> {
+                  newUsers.addAll(users);
+                  return newUsers;
+                })
                 .compose(bindToLifecycle())
                 .subscribe(users -> mBehavioralAdapter.set(users), Timber::w);
           }
