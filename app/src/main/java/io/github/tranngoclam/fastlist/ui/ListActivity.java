@@ -3,7 +3,6 @@ package io.github.tranngoclam.fastlist.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.util.SortedList;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -36,7 +35,7 @@ public class ListActivity extends BaseActivity {
 
   public static final int MODE_SORTED_LIST = 2;
 
-  static final int DEFAULT_AMOUNT = 5;
+  static final int DEFAULT_AMOUNT = 10;
 
   static final String DEFAULT_REGION = "United States";
 
@@ -73,12 +72,12 @@ public class ListActivity extends BaseActivity {
         if (mBehavioralAdapter != null) {
           if (mBehavioralAdapter instanceof SortedListAdapter) {
             mRestService.getUser(DEFAULT_REGION)
-                .compose(Transformer.applyIoSingleTransformer())
+                .compose(Transformer.applyIoTransformer())
                 .compose(bindToLifecycle())
                 .subscribe(user -> mBehavioralAdapter.add(user), Timber::w);
           } else {
             mRestService.getUser(DEFAULT_REGION)
-                .compose(Transformer.applyIoSingleTransformer())
+                .compose(Transformer.applyIoTransformer())
                 .compose(bindToLifecycle())
                 .subscribe(user -> {
                   int index = Utils.randomize(mBehavioralAdapter.getItemCount() - 1);
@@ -87,24 +86,24 @@ public class ListActivity extends BaseActivity {
           }
         } else {
           mRestService.getUser(DEFAULT_REGION)
-              .flatMapCompletable(user -> mRxSortedDiffAdapter.getRxSortedList().add(user))
-              .compose(Transformer.applyCompletableTransformer())
+              .compose(Transformer.applyIoTransformer())
+              .flatMap(user -> mRxSortedDiffAdapter.getRxSortedList().add(user))
               .compose(bindToLifecycle())
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | add"), Timber::w);
+              .subscribe(integer -> Timber.d("RxSortedDiffAdapter | add"), Timber::w);
         }
         return true;
       case R.id.action_add_multiple:
         if (mBehavioralAdapter != null) {
           mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
-              .compose(Transformer.applyIoSingleTransformer())
+              .compose(Transformer.applyIoTransformer())
               .compose(bindToLifecycle())
               .subscribe(users -> mBehavioralAdapter.addAll(users), Timber::w);
         } else {
           mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
-              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().addAll(users))
-              .compose(Transformer.applyCompletableTransformer())
+              .compose(Transformer.applyIoTransformer())
+              .flatMap(users -> mRxSortedDiffAdapter.getRxSortedList().addAll(users))
               .compose(bindToLifecycle())
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | addAll"), Timber::w);
+              .subscribe(o -> Timber.d("RxSortedDiffAdapter | addAll"), Timber::w);
         }
         return true;
       case R.id.action_update_single:
@@ -118,46 +117,35 @@ public class ListActivity extends BaseActivity {
           User newUser = new User(user.age, user.gender.equalsIgnoreCase("male") ? "female" : "male", user.name, user.password, user.phone,
               user.photo, user.surname);
           mRxSortedDiffAdapter.getRxSortedList().updateItemAt(1, newUser)
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | updateItemAt"), Timber::w);
+              .compose(bindToLifecycle())
+              .subscribe(o -> Timber.d("RxSortedDiffAdapter | updateItemAt"), Timber::w);
         }
         return true;
       case R.id.action_set_multiple_items:
         if (mBehavioralAdapter != null) {
           if (mBehavioralAdapter instanceof SortedListAdapter) {
-            SortedList<User> curUsers = ((SortedListAdapter) mBehavioralAdapter).getUsers();
-            List<User> newUsers = Utils.copyAndSwapName(curUsers);
             mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
-                .map(users -> {
-                  newUsers.addAll(users);
-                  return newUsers;
-                })
-                .compose(Transformer.applyIoSingleTransformer())
+                .compose(Transformer.applyIoTransformer())
                 .compose(bindToLifecycle())
-                .subscribe(users -> mBehavioralAdapter.set(newUsers), Timber::w);
+                .subscribe(users -> mBehavioralAdapter.set(users), Timber::w);
           } else if (mBehavioralAdapter instanceof DiffUtilAdapter) {
-            List<User> curUsers = ((DiffUtilAdapter) mBehavioralAdapter).getUsers();
-            List<User> newUsers = Utils.copyAndSwapName(curUsers);
             mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
-                .map(users -> {
-                  newUsers.addAll(users);
-                  return newUsers;
-                })
-                .compose(Transformer.applyIoSingleTransformer())
+                .compose(Transformer.applyIoTransformer())
                 .compose(bindToLifecycle())
-                .subscribe(users -> mBehavioralAdapter.set(newUsers), Timber::w);
+                .subscribe(users -> mBehavioralAdapter.set(users), Timber::w);
           }
         } else {
           List<User> curUsers = mRxSortedDiffAdapter.getRxSortedList().getData();
           List<User> newUsers = Utils.copyAndSwapName(curUsers);
           mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+              .compose(Transformer.applyIoTransformer())
               .map(users -> {
                 newUsers.addAll(users);
                 return newUsers;
               })
-              .flatMapCompletable(users -> mRxSortedDiffAdapter.getRxSortedList().set(users))
-              .compose(Transformer.applyCompletableTransformer())
+              .flatMap(users -> mRxSortedDiffAdapter.getRxSortedList().set(users))
               .compose(bindToLifecycle())
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
+              .subscribe(o -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
         }
         return true;
       case R.id.action_remove_single:
@@ -173,7 +161,8 @@ public class ListActivity extends BaseActivity {
           index = Utils.randomize(mRxSortedDiffAdapter.getItemCount() - 1);
           if (index >= 0 && index < mRxSortedDiffAdapter.getRxSortedList().size()) {
             mRxSortedDiffAdapter.getRxSortedList().removeItemAt(index)
-                .subscribe(() -> Timber.d("RxSortedDiffAdapter | removeItemAt"), Timber::w);
+                .compose(bindToLifecycle())
+                .subscribe(user -> Timber.d("RxSortedDiffAdapter | removeItemAt"), Timber::w);
           } else {
             Timber.w(IndexOutOfBoundsException.class.getSimpleName());
           }
@@ -184,7 +173,8 @@ public class ListActivity extends BaseActivity {
           mBehavioralAdapter.clear();
         } else {
           mRxSortedDiffAdapter.getRxSortedList().clear()
-              .subscribe(() -> Timber.d("RxSortedDiffAdapter | clear"), Timber::w);
+              .compose(bindToLifecycle())
+              .subscribe(o -> Timber.d("RxSortedDiffAdapter | clear"), Timber::w);
         }
         return true;
       default:
@@ -218,54 +208,55 @@ public class ListActivity extends BaseActivity {
     switch (mode) {
       case MODE_REGULAR:
         mBehavioralAdapter = new RegularAdapter();
-        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        //mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_SORTED_LIST:
         mBehavioralAdapter = new SortedListAdapter();
-        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        //mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_DIFF_UTIL:
         mBehavioralAdapter = new DiffUtilAdapter();
-        mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        //mBehavioralAdapter.registerAdapterDataObserver(mAdapterDataObserver);
         mRecyclerView.setAdapter(mBehavioralAdapter);
         break;
       case MODE_RX_SORTED_DIFF:
         mRxSortedDiffAdapter = new RxSortedDiffAdapter();
-        mRxSortedDiffAdapter.registerAdapterDataObserver(mAdapterDataObserver);
+        //mRxSortedDiffAdapter.registerAdapterDataObserver(mAdapterDataObserver);
         mRecyclerView.setAdapter(mRxSortedDiffAdapter);
         break;
     }
 
-    mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
-        .compose(Transformer.applyIoSingleTransformer())
-        .compose(bindToLifecycle())
-        .subscribe(users -> {
-          switch (mode) {
-            case MODE_REGULAR:
-            case MODE_SORTED_LIST:
-            case MODE_DIFF_UTIL:
-              if (mBehavioralAdapter != null) {
-                mBehavioralAdapter.set(users);
-              }
-              break;
-            case MODE_RX_SORTED_DIFF:
-              if (mRxSortedDiffAdapter != null) {
-                mRxSortedDiffAdapter.getRxSortedList().set(users)
-                    .subscribe(() -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
-              }
-              break;
-          }
-        }, Timber::w);
+    switch (mode) {
+      case MODE_REGULAR:
+      case MODE_SORTED_LIST:
+      case MODE_DIFF_UTIL:
+        if (mBehavioralAdapter != null) {
+          mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+              .compose(Transformer.applyIoTransformer())
+              .compose(bindToLifecycle())
+              .subscribe(users -> mBehavioralAdapter.set(users), Timber::w);
+        }
+        break;
+      case MODE_RX_SORTED_DIFF:
+        if (mRxSortedDiffAdapter != null) {
+          mRestService.getUsers(DEFAULT_AMOUNT, DEFAULT_REGION)
+              .compose(Transformer.applyIoTransformer())
+              .flatMap(users -> mRxSortedDiffAdapter.getRxSortedList().set(users))
+              .compose(bindToLifecycle())
+              .subscribe(o -> Timber.d("RxSortedDiffAdapter | set"), Timber::w);
+        }
+        break;
+    }
   }
 
   @Override
   protected void onDestroy() {
-    RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
-    if (adapter != null && mAdapterDataObserver != null) {
-      adapter.unregisterAdapterDataObserver(mAdapterDataObserver);
-    }
+    //RecyclerView.Adapter adapter = mRecyclerView.getAdapter();
+    //if (adapter != null && mAdapterDataObserver != null) {
+    //  adapter.unregisterAdapterDataObserver(mAdapterDataObserver);
+    //}
     super.onDestroy();
   }
 

@@ -11,7 +11,7 @@ public class ThreadAwareDebugTree extends Timber.DebugTree {
   @Override
   protected void log(int priority, String tag, String message, Throwable t) {
     if (tag != null) {
-      String threadName = Thread.currentThread().getName();
+      String threadName = Thread.currentThread().toString();
       tag = "[" + threadName + "] " + tag;
     }
     super.log(priority, tag, message, t);

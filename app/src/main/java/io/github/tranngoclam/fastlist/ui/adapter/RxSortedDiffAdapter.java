@@ -1,10 +1,7 @@
 package io.github.tranngoclam.fastlist.ui.adapter;
 
-import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
-
-import java.util.List;
 
 import io.github.tranngoclam.fastlist.RxRecyclerViewAdapterCallback;
 import io.github.tranngoclam.fastlist.RxSortedDiffList;
@@ -36,7 +33,7 @@ public class RxSortedDiffAdapter extends RecyclerView.Adapter<UserViewHolder> {
       public int compare(User o1, User o2) {
         return User.compare(o1, o2);
       }
-    }, this, User::getChangePayload);
+    });
   }
 
   @Override
@@ -47,16 +44,6 @@ public class RxSortedDiffAdapter extends RecyclerView.Adapter<UserViewHolder> {
   @Override
   public void onBindViewHolder(UserViewHolder holder, int position) {
     holder.bind(mUsers.get(position));
-  }
-
-  @Override
-  public void onBindViewHolder(UserViewHolder holder, int position, List<Object> payloads) {
-    if (payloads != null && !payloads.isEmpty() && payloads.get(0) instanceof Bundle) {
-      Bundle bundle = (Bundle) payloads.get(0);
-      holder.bind(bundle);
-    } else {
-      onBindViewHolder(holder, position);
-    }
   }
 
   @Override

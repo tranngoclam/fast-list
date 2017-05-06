@@ -49,4 +49,5 @@ dependencies {
   compile('me.henrytao:mdcore:3.3.10') { transitive = true }
   testCompile 'junit:junit:4.12'
   androidTestCompile 'junit:junit:4.12'
+  compile 'com.android.support.constraint:constraint-layout:1.0.2'
 }

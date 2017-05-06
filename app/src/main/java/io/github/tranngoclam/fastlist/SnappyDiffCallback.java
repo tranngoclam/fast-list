@@ -1,16 +1,14 @@
 package io.github.tranngoclam.fastlist;
 
-import android.support.annotation.Nullable;
 import android.support.v4.util.Pair;
 import android.support.v7.util.DiffUtil;
 
 public class SnappyDiffCallback<D> extends DiffUtil.Callback {
 
-  static <D> Pair<DiffUtil.DiffResult, D[]> calculate(RxSortedListCallback<D> callback, D[] oldData, D[] newData,
-      int oldDataLength, int newDataLength, OnPayloadChangedListener<D> payloadCallback) {
+  static <D> Pair<DiffUtil.DiffResult, D[]> calculate(RxSortedListCallback<D> callback, D[] oldData, D[] newData, int oldDataLength,
+      int newDataLength) {
     return Pair
-        .create(DiffUtil.calculateDiff(new SnappyDiffCallback<>(callback, oldData, newData, oldDataLength, newDataLength, payloadCallback)),
-            newData);
+        .create(DiffUtil.calculateDiff(new SnappyDiffCallback<>(callback, oldData, newData, oldDataLength, newDataLength)), newData);
   }
 
   private final RxSortedListCallback<D> mCallback;
@@ -23,16 +21,12 @@ public class SnappyDiffCallback<D> extends DiffUtil.Callback {
 
   private final int mOldDataLength;
 
-  private final OnPayloadChangedListener<D> mPayloadCallback;
-
-  private SnappyDiffCallback(RxSortedListCallback<D> callback, D[] oldData, D[] newData, int oldDataLength, int newDataLength,
-      OnPayloadChangedListener<D> payloadCallback) {
+  private SnappyDiffCallback(RxSortedListCallback<D> callback, D[] oldData, D[] newData, int oldDataLength, int newDataLength) {
     mOldData = oldData;
     mNewData = newData;
     mCallback = callback;
     mOldDataLength = oldDataLength;
     mNewDataLength = newDataLength;
-    mPayloadCallback = payloadCallback;
   }
 
   @Override
@@ -43,12 +37,6 @@ public class SnappyDiffCallback<D> extends DiffUtil.Callback {
   @Override
   public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
     return mCallback.areItemsTheSame(mOldData[oldItemPosition], mNewData[newItemPosition]);
-  }
-
-  @Nullable
-  @Override
-  public Object getChangePayload(int oldItemPosition, int newItemPosition) {
-    return mPayloadCallback.onPayloadChanged(mOldData[oldItemPosition], mNewData[newItemPosition]);
   }
 
   @Override

@@ -12,10 +12,10 @@
       <group>
         <item
           android:id="@+id/action_add_single"
-          android:title="Insert single item" />
+          android:title="Add single item" />
         <item
           android:id="@+id/action_add_multiple"
-          android:title="Insert multiple items" />
+          android:title="Add multiple items" />
         <item
           android:id="@+id/action_update_single"
           android:title="Update single item" />
