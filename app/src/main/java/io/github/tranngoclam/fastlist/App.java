@@ -7,6 +7,7 @@ import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import android.app.Application;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import io.github.tranngoclam.ThreadAwareDebugTree;
 import io.github.tranngoclam.fastlist.di.AppComponent;
@@ -21,7 +22,7 @@ import timber.log.Timber;
 
 public class App extends Application {
 
-  @Inject OkHttpClient mOkHttpClient;
+  @Inject @Named("fresco_ok_http") OkHttpClient mOkHttpClient;
 
   private AppComponent appComponent;
 

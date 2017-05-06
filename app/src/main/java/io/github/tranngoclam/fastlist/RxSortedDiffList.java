@@ -46,14 +46,6 @@ public class RxSortedDiffList<T> {
     }).compose(onBackground());
   }
 
-  public Observable<Object> addAll2(List<T> users) {
-    return Observable.fromCallable(() -> {
-      Timber.d("addAll2");
-      mSnappySortedList.addAll(users);
-      return null;
-    }).compose(onBackground());
-  }
-
   public Observable<Object> clear() {
     return Observable.fromCallable(() -> {
       Timber.d("clear");

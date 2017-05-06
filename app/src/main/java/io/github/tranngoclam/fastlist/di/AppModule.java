@@ -4,6 +4,7 @@ import android.content.Context;
 
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Named;
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -36,6 +37,18 @@ public class AppModule {
 
   @Singleton
   @Provides
+  @Named("fresco_ok_http")
+  OkHttpClient provideFrescoOkHttpClient() {
+    return new OkHttpClient.Builder()
+        .readTimeout(30, TimeUnit.SECONDS)
+        .writeTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(30, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .build();
+  }
+
+  @Singleton
+  @Provides
   HttpLoggingInterceptor provideHttpLoggingInterceptor() {
     HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
     interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -44,6 +57,7 @@ public class AppModule {
 
   @Singleton
   @Provides
+  @Named("ok_http")
   OkHttpClient provideOkHttpClient(HttpLoggingInterceptor interceptor) {
     return new OkHttpClient.Builder()
         .readTimeout(30, TimeUnit.SECONDS)
@@ -56,7 +70,7 @@ public class AppModule {
 
   @Singleton
   @Provides
-  RestService provideRestService(OkHttpClient okHttpClient) {
+  RestService provideRestService(@Named("ok_http") OkHttpClient okHttpClient) {
     Retrofit retrofit = new Retrofit.Builder()
         .baseUrl("https://uinames.com/")
         .client(okHttpClient)
